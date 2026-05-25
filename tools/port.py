@@ -646,7 +646,7 @@ def collect_skills(src: Path, plugin_name: str) -> list[SkillInfo]:
         cls, reason, edge = classify(d.name, fm, plugin_name)
         extra = any(
             (d / sub).is_dir()
-            for sub in ("references", "schemas", "fixtures", "scripts")
+            for sub in ("references", "schemas", "fixtures", "scripts", "templates")
         )
         out.append(SkillInfo(
             name=d.name, src_dir=d, skill_md=skill_md,
@@ -766,7 +766,7 @@ def copytree_verbatim(src: Path, dst: Path, report: PortReport, out_root: Path,
       - scripts/ -> copied verbatim (code; repoint by hand if needed, flagged).
     """
     # Truly verbatim: data + code.
-    for sub in ("schemas", "fixtures", "scripts"):
+    for sub in ("schemas", "fixtures", "scripts", "templates"):
         s = src / sub
         if s.is_dir():
             shutil.copytree(s, dst / sub, dirs_exist_ok=True)
