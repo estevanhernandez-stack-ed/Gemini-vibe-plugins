@@ -1,0 +1,59 @@
+{
+  "plugin_name": "vibe-insights",
+  "source": "C:\\Users\\estev\\Projects\\vibe-insights",
+  "output": "C:\\Users\\estev\\Projects\\vibe-plugins-ports\\vibe-insights",
+  "summary": {
+    "workflows": 1,
+    "skills": 0,
+    "edge_classifications": 0,
+    "files_transformed": 3,
+    "files_copied_verbatim": 0,
+    "guide_intro_lines_to_synthesize": 0
+  },
+  "commands_merged": {},
+  "namespacing": {
+    "convention": "router=/<plugin>; other workflows=/<plugin>-<cmd>; evolve-*=/<plugin>-evolve; skills=<plugin>-<skill>",
+    "workflow_renames": {
+      "/vibe-insights": "/vibe-insights"
+    },
+    "skill_renames": {}
+  },
+  "workflows": [
+    {
+      "name": "vibe-insights",
+      "slash": "/vibe-insights",
+      "source_name": "vibe-insights",
+      "reason": "user-invocable slash trigger (/vibe-insights)",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": false
+    }
+  ],
+  "skills": [],
+  "edge_classifications": [],
+  "repoints_applied": {
+    "claude-home-generic": 1,
+    "claude-md": 1
+  },
+  "unknown_xref_targets": [],
+  "leftover_grep_hits": {
+    "claude-home": [
+      "AGENTS.md: \u2026~/.claude\u2026"
+    ]
+  },
+  "files_transformed": [
+    ".agent\\workflows\\vibe-insights.md",
+    ".agent/agent.json",
+    "AGENTS.md (skeleton \u2014 finishing pass)"
+  ],
+  "files_copied_verbatim": [],
+  "finishing_pass_todos": [
+    "AGENTS.md: synthesize the always-on layer as prose (persona, posture, knowledge sources, cross-plugin detection, hard rules, voice). The skeleton has TODO markers + source-doc hints.",
+    "Guide split: decide which guide reference docs are always-on (collapse into AGENTS.md prose, then DELETE from the guide skill so there's one source of truth) vs situational (keep as files in the guide skill). Rewrite the guide SKILL.md to a thin index. Schemas + trigger maps stay skill-side; personas + postures go AGENTS-side.",
+    "Namespacing applied: every non-router workflow is /<plugin>-<cmd>, evolve-* collapsed to /<plugin>-evolve, skills are <plugin>-<skill> (dir + frontmatter name). See report.namespacing for the rename map. Spot-check that no bare command slash-ref survived (only the router /<plugin> is bare) and that prose using a skill's plain word (e.g. the common noun 'guide') reads correctly \u2014 the ref-rewrite only namespaces the skill IDENTITY (backtick/'X skill'/path/method-call), not prose.",
+    "Folded-reference back-pointers: any body that said 'per ../guide/references/<doc>.md' for a doc that got collapsed into AGENTS.md must point at 'AGENTS.md \u00a7 <Section>' instead.",
+    "H1 titles / inline triggers: the script repoints frontmatter triggers and body slash names, but H1 headings and HTML-entity forms (e.g. '/plugin:rate &lt;idea&gt;') may need a hand pass for clean '/rate <idea>' form.",
+    "Open questions 1-5 (PORTING.md): re-check against THIS plugin's feature set \u2014 does it schedule (cron)? call sidecars silently? have hooks/? use ~/.claude/profiles/builder.json? namespace-collide on workflow names? Document the answers; do NOT invent Antigravity primitives.",
+    "Leftover grep hits remain (see leftover_grep_hits) \u2014 review each; some are legitimate (the AGENTS.md repoint note mentions the old path on purpose), some are misses to clean up."
+  ]
+}
