@@ -1,0 +1,17 @@
+{
+  "name": "thesis-engine",
+  "version": "0.2.1",
+  "description": "Research feeder for vibe-thesis projects. Discovers cutting-edge thesis topics, gathers primary sources / opposing positions / methodological precedents via web search, and emits research notes + a BibTeX bibliography in vibe-thesis-shaped subdirectories ready to drop into ThesisStudio. Optional Smart Brevity blog adapter for BlogStudio.",
+  "author": "Estevan Hernandez",
+  "license": "MIT",
+  "source_plugin": {
+    "marketplace": "vibe-plugins",
+    "name": "thesis-engine",
+    "version": "0.2.1",
+    "format": "claude-code"
+  },
+  "port": {
+    "target": "antigravity-2.0",
+    "notes": "Manifest mirrors the Claude Code plugin.json version. thesis-engine has no loggers, so nothing reads plugin_version here — pure bookkeeping, kept for family consistency. Antigravity discovers workflows from .agent/workflows/ (the eponymous skill collapsed to the router /thesis-engine; the 4 stage commands are /thesis-engine-<cmd> workflows). No .agent/skills/ in this port (0 skills); situational reference data lives in .agent/references/, scripts in .agent/scripts/."
+  }
+}
