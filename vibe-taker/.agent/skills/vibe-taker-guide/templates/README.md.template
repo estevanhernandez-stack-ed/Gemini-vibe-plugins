@@ -1,0 +1,31 @@
+# {{name}}
+
+> {{summary}}
+
+## What it is
+
+{{what_it_is}}
+
+## When to reach for it
+
+{{when_to_reach}}
+
+## Plant
+
+```
+/vibe-taker-plant {{name}}
+```
+
+To pin a specific version:
+
+```
+/vibe-taker-plant {{name}} --version={{version}}
+```
+
+## Reference
+
+The verbatim source-of-truth files live under [`reference/`](./reference/). The contract surface is in [`contract.json`](./contract.json); the why and the gotchas are in [`notes.md`](./notes.md).
+
+---
+
+<sub>Captured {{captured_at}} from `{{source_repo}}` (`{{source_path}}`) — vibe-taker bundle v{{schema_version}}.</sub>

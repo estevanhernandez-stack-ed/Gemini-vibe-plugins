@@ -1,0 +1,163 @@
+{
+  "plugin_name": "vibe-taker",
+  "source": "C:\\Users\\estev\\Projects\\vibe-taker\\plugins\\vibe-taker",
+  "output": "C:\\Users\\estev\\Projects\\vibe-plugins-ports\\vibe-taker",
+  "summary": {
+    "workflows": 3,
+    "skills": 3,
+    "edge_classifications": 2,
+    "files_transformed": 13,
+    "files_copied_verbatim": 1,
+    "guide_intro_lines_to_synthesize": 0
+  },
+  "commands_merged": {
+    "commands_found": [
+      "capture",
+      "list",
+      "plant"
+    ],
+    "merged_with_skill": [
+      "capture",
+      "list",
+      "plant"
+    ],
+    "command_only_workflows": [],
+    "note": "Each command + same-named skill merged into ONE workflow (command -> slash + description, skill body -> workflow body, standalone skill dropped). Command-only commands became workflows from the command body. See PORT-RUNNER.md step 2b."
+  },
+  "namespacing": {
+    "convention": "router=/<plugin>; other workflows=/<plugin>-<cmd>; evolve-*=/<plugin>-evolve; skills=<plugin>-<skill>",
+    "workflow_renames": {
+      "/capture": "/vibe-taker-capture",
+      "/list": "/vibe-taker-list",
+      "/plant": "/vibe-taker-plant"
+    },
+    "skill_renames": {
+      "friction-logger": "vibe-taker-friction-logger",
+      "guide": "vibe-taker-guide",
+      "session-logger": "vibe-taker-session-logger"
+    }
+  },
+  "workflows": [
+    {
+      "name": "vibe-taker-capture",
+      "slash": "/vibe-taker-capture",
+      "source_name": "capture",
+      "reason": "command + parallel skill merged into one workflow (/capture); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-taker-list",
+      "slash": "/vibe-taker-list",
+      "source_name": "list",
+      "reason": "command + parallel skill merged into one workflow (/list); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-taker-plant",
+      "slash": "/vibe-taker-plant",
+      "source_name": "plant",
+      "reason": "command + parallel skill merged into one workflow (/plant); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "vibe-taker-friction-logger",
+      "source_name": "friction-logger",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "edge_flag": true,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "vibe-taker-guide",
+      "source_name": "guide",
+      "reason": "shared-behavior reference, never user-invoked",
+      "edge_flag": false,
+      "carried_verbatim": true,
+      "guide_split": true
+    },
+    {
+      "name": "vibe-taker-session-logger",
+      "source_name": "session-logger",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "edge_flag": true,
+      "carried_verbatim": false,
+      "guide_split": false
+    }
+  ],
+  "edge_classifications": [
+    {
+      "name": "friction-logger",
+      "classified_as": "skill",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "note": "VERIFY in finishing pass \u2014 self-label vs trigger disagreed, or no strong signal."
+    },
+    {
+      "name": "session-logger",
+      "classified_as": "skill",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "note": "VERIFY in finishing pass \u2014 self-label vs trigger disagreed, or no strong signal."
+    }
+  ],
+  "repoints_applied": {
+    "data-path": 2,
+    "builder-profile": 1,
+    "plugin-namespaced-slash": 14,
+    "sidecar-backtick": 20,
+    "sidecar-bare": 1,
+    "command-start-end": 4
+  },
+  "unknown_xref_targets": [],
+  "leftover_grep_hits": {
+    "sibling-skill-link": [
+      ".agent\\skills\\vibe-taker-friction-logger\\SKILL.md: \u2026../vibe-taker-session-logger/SKILL.md\u2026",
+      ".agent\\skills\\vibe-taker-guide\\references\\error-contract.md: \u2026../vibe-taker-capture/SKILL.md\u2026",
+      ".agent\\skills\\vibe-taker-guide\\references\\error-contract.md: \u2026../vibe-taker-plant/SKILL.md\u2026",
+      ".agent\\skills\\vibe-taker-guide\\references\\error-contract.md: \u2026../vibe-taker-list/SKILL.md\u2026",
+      ".agent\\skills\\vibe-taker-guide\\references\\interview-gate.md: \u2026../vibe-taker-capture/SKILL.md\u2026",
+      ".agent\\skills\\vibe-taker-guide\\references\\secret-patterns.md: \u2026../vibe-taker-capture/SKILL.md\u2026",
+      ".agent\\skills\\vibe-taker-guide\\references\\stack-match.md: \u2026../vibe-taker-plant/SKILL.md\u2026",
+      ".agent\\skills\\vibe-taker-guide\\SKILL.md: \u2026../vibe-taker-session-logger/SKILL.md\u2026"
+    ],
+    "claude-home": [
+      "AGENTS.md: \u2026~/.claude\u2026"
+    ]
+  },
+  "files_transformed": [
+    ".agent\\workflows\\vibe-taker-capture.md",
+    ".agent\\workflows\\vibe-taker-list.md",
+    ".agent\\workflows\\vibe-taker-plant.md",
+    ".agent\\skills\\vibe-taker-friction-logger\\SKILL.md",
+    ".agent\\skills\\vibe-taker-guide\\SKILL.md",
+    ".agent\\skills\\vibe-taker-guide\\references\\bundle-schema.md",
+    ".agent\\skills\\vibe-taker-guide\\references\\error-contract.md",
+    ".agent\\skills\\vibe-taker-guide\\references\\interview-gate.md",
+    ".agent\\skills\\vibe-taker-guide\\references\\secret-patterns.md",
+    ".agent\\skills\\vibe-taker-guide\\references\\stack-match.md",
+    ".agent\\skills\\vibe-taker-session-logger\\SKILL.md",
+    ".agent/agent.json",
+    "AGENTS.md (skeleton \u2014 finishing pass)"
+  ],
+  "files_copied_verbatim": [
+    ".agent\\skills\\vibe-taker-guide\\schemas/* (verbatim)"
+  ],
+  "finishing_pass_todos": [
+    "AGENTS.md: synthesize the always-on layer as prose (persona, posture, knowledge sources, cross-plugin detection, hard rules, voice). The skeleton has TODO markers + source-doc hints.",
+    "Guide split: decide which guide reference docs are always-on (collapse into AGENTS.md prose, then DELETE from the guide skill so there's one source of truth) vs situational (keep as files in the guide skill). Rewrite the guide SKILL.md to a thin index. Schemas + trigger maps stay skill-side; personas + postures go AGENTS-side.",
+    "Namespacing applied: every non-router workflow is /<plugin>-<cmd>, evolve-* collapsed to /<plugin>-evolve, skills are <plugin>-<skill> (dir + frontmatter name). See report.namespacing for the rename map. Spot-check that no bare command slash-ref survived (only the router /<plugin> is bare) and that prose using a skill's plain word (e.g. the common noun 'guide') reads correctly \u2014 the ref-rewrite only namespaces the skill IDENTITY (backtick/'X skill'/path/method-call), not prose.",
+    "Command merge (thin-command-wrapper pattern): commands/ was detected. Merged with a parallel skill -> workflow: ['capture', 'list', 'plant']. Command-only -> workflow: []. VERIFY each merged workflow's `description` (from the command) reads clean and its body (from the skill) carries the full implementation; confirm the standalone skill dirs for the merged ones were dropped (port.py emits no skill for them). For command-only workflows, the body is the command body \u2014 flesh out any 'read the SKILL' delegation that no longer has a skill to point at.",
+    "Edge classification: 'friction-logger' -> skill (no real slash trigger or user-says phrasing \u2014 defaulted to skill). Confirm.",
+    "Edge classification: 'session-logger' -> skill (no real slash trigger or user-says phrasing \u2014 defaulted to skill). Confirm.",
+    "Folded-reference back-pointers: any body that said 'per ../guide/references/<doc>.md' for a doc that got collapsed into AGENTS.md must point at 'AGENTS.md \u00a7 <Section>' instead.",
+    "H1 titles / inline triggers: the script repoints frontmatter triggers and body slash names, but H1 headings and HTML-entity forms (e.g. '/plugin:rate &lt;idea&gt;') may need a hand pass for clean '/rate <idea>' form.",
+    "Open questions 1-5 (PORTING.md): re-check against THIS plugin's feature set \u2014 does it schedule (cron)? call sidecars silently? have hooks/? use ~/.claude/profiles/builder.json? namespace-collide on workflow names? Document the answers; do NOT invent Antigravity primitives.",
+    "Leftover grep hits remain (see leftover_grep_hits) \u2014 review each; some are legitimate (the AGENTS.md repoint note mentions the old path on purpose), some are misses to clean up."
+  ]
+}

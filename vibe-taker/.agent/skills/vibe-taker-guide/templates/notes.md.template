@@ -1,0 +1,17 @@
+# Notes — {{name}}
+
+## Why this exists
+
+{{why_block}}
+
+## Gotchas
+
+{{gotchas_block}}
+
+## Tradeoffs preserved
+
+{{tradeoffs_block}}
+
+---
+
+<sub>vibe-taker autonomous read at {{captured_at}}. Empty sections are explicit ("None known.") rather than absent.</sub>

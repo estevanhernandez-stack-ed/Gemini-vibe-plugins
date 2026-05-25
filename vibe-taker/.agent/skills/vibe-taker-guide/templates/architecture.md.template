@@ -1,0 +1,21 @@
+# Architecture — {{name}}
+
+## Summary
+
+{{summary_paragraph}}
+
+## Components
+
+{{components_block}}
+
+## Data flow
+
+{{data_flow_block}}
+
+## Key files
+
+{{key_files_block}}
+
+---
+
+<sub>vibe-taker autonomous read at {{captured_at}}. Hand-edit anything the agent missed; this file is human-authoritative.</sub>
