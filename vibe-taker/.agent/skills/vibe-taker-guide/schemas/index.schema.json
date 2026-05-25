@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estevanhernandez-stack-ed/vibe-taker/schemas/index.schema.json",
+  "title": "vibe-taker shelf index",
+  "description": "Top-level manifest for ~/.vibe-taker/library/index.json. Pretty-printed, 2-space indent, ~200 bytes per entry.",
+  "type": "object",
+  "required": ["schema_version", "bundles"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "bundles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/bundleEntry" },
+      "description": "Array (not a map) — preserves user-visible ordering and survives hand-edits cleanly."
+    }
+  },
+  "$defs": {
+    "bundleEntry": {
+      "type": "object",
+      "required": ["name", "latest_version", "versions", "language"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "latest_version": {
+          "type": "string",
+          "pattern": "^v[0-9]+$",
+          "description": "Selected by '/vibe-taker-plant <name>' without --version."
+        },
+        "versions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["version", "captured_at", "source_repo", "source_path"],
+            "additionalProperties": false,
+            "properties": {
+              "version": {
+                "type": "string",
+                "pattern": "^v[0-9]+$"
+              },
+              "captured_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "source_repo": { "type": "string" },
+              "source_path": { "type": "string" }
+            }
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "summary": {
+          "type": "string",
+          "description": "One line, mirrored from contract.json.summary."
+        },
+        "language": {
+          "type": "string",
+          "description": "Primary language; used by --sort=lang."
+        },
+        "framework": {
+          "type": ["string", "null"],
+          "description": "Detected framework or null."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/estevanhernandez-stack-ed/vibe-taker/schemas/contract.schema.json",
+  "title": "vibe-taker bundle contract",
+  "description": "I/O surface and metadata for one captured feature bundle. The contract is the load-bearing schema; KTD-2 locks shape at v1.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "name",
+    "version",
+    "language",
+    "framework",
+    "interface_kind",
+    "inputs",
+    "outputs",
+    "dependencies",
+    "env_vars",
+    "source_repo",
+    "source_path",
+    "captured_at",
+    "entry_points"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Bundle schema version. v1 ships at 1.0; bumps require a migration note."
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Slug; matches bundle directory name."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^v[0-9]+$",
+      "description": "v1, v2, etc. — matches bundle subdirectory."
+    },
+    "language": {
+      "type": "string",
+      "description": "Primary detected language. Use 'other:<name>' for unrecognized stacks.",
+      "examples": ["python", "typescript", "javascript", "rust", "go", "csharp", "ruby", "bash", "other:elixir"]
+    },
+    "framework": {
+      "type": ["string", "null"],
+      "description": "Detected framework or 'none'. null when no framework is detectable."
+    },
+    "interface_kind": {
+      "type": "string",
+      "enum": ["cli", "library", "skill", "script", "service", "bot", "other"]
+    },
+    "inputs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/input" }
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/output" }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Package name with version specifier when discoverable, e.g. 'requests>=2.28'."
+      }
+    },
+    "env_vars": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/envVar" }
+    },
+    "source_repo": {
+      "type": "string",
+      "description": "URL or local path of the source repo at capture time."
+    },
+    "source_path": {
+      "type": "string",
+      "description": "Relative path within source_repo of the captured target."
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of capture."
+    },
+    "entry_points": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "File paths within reference/ that are program entry points."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "User-supplied search tags. Mirrored in index.json."
+    },
+    "summary": {
+      "type": "string",
+      "description": "One-line autonomous-or-interview-supplied summary. Mirrored in index.json."
+    },
+    "notes_completeness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["substantive_count", "interview_fired"],
+      "properties": {
+        "substantive_count": { "type": "integer", "minimum": 0 },
+        "interview_fired": { "type": "boolean" }
+      },
+      "description": "Diagnostics for the interview-gate heuristic. Carried to /reflect."
+    }
+  },
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "type": {
+          "type": "string",
+          "description": "One of path/string/int/float/bool/stdin/flag/other, or an enum form 'enum:<v1>|<v2>|...'.",
+          "pattern": "^(path|string|int|float|bool|stdin|flag|other|enum:.+)$"
+        },
+        "required": { "type": "boolean" },
+        "description": { "type": "string" },
+        "default": {}
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "type": {
+          "type": "string",
+          "pattern": "^(path|string|int|float|bool|stdin|flag|other|enum:.+)$"
+        },
+        "description": { "type": "string" }
+      }
+    },
+    "envVar": {
+      "type": "object",
+      "required": ["name", "load_bearing"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Conventional uppercase env-var name."
+        },
+        "load_bearing": {
+          "type": "boolean",
+          "description": "When true, the feature won't function without this env var. Plant-time prompts the user to provide if missing in target."
+        },
+        "description": { "type": "string" }
+      }
+    }
+  }
+}
