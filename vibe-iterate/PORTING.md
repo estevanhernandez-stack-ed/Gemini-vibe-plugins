@@ -157,3 +157,63 @@ The pilot was installed and run in a real Antigravity 2.0 instance on the Celest
 - [ ] Update self-edit targets in any `evolve-*` workflow.
 - [ ] Write README.md (install/use) + append this plugin's specifics to the cookbook.
 - [ ] Re-check open questions 1-5 against the plugin's actual feature set (does it schedule? does it call sidecars silently? does it have hooks?).
+
+---
+
+# Port log
+
+Per-port notes appended as the pipeline runs the rest of the family. Each entry: what was mechanical vs needed thought THIS port, the edge resolutions, and any PORT-RUNNER.md gap hit.
+
+## vibe-walk@0.1.0 (ported 2026-05-24)
+
+**Shape:** 9 source skills → **6 workflows + 3 skills** + AGENTS.md + agent.json + carried scripts.
+
+| Source skill | Source self-label | Port target | Why |
+|---|---|---|---|
+| `vibe-walk` (bare router) | user-invocable | **workflow** `/vibe-walk` | User types it |
+| `bootstrap` | "Internal SKILL … directly when user says /bootstrap" | **workflow** `/bootstrap` | Real slash trigger — the canonical bootstrap edge (trust the trigger over the "internal" label) |
+| `discover` | description = "Phase 1 autonomous discovery…" (no /slash phrasing) | **workflow** `/discover` | **Reclassified — see edge below** |
+| `walk` | description = "Phase 1.5 interview gates…" (no /slash phrasing) | **workflow** `/walk` | **Reclassified — see edge below** |
+| `vitals` | user-invocable | **workflow** `/vitals` | Structural self-test, user-typed |
+| `evolve-walk` | user-invocable | **workflow** `/evolve-walk` | L3 self-evolution, user-typed |
+| `guide` | shared-behavior, never invoked | **split** → `AGENTS.md` + **skill** `.agent/skills/guide/` | See guide split |
+| `session-logger` | "Internal SKILL — not a slash command" | **skill** | Loaded by commands, never typed |
+| `friction-logger` | "Internal SKILL — not a slash command" | **skill** | Loaded by commands, never typed |
+
+### The discover / walk edge (the vibe-doc-style trap, resolved)
+
+`port.py` defaulted **discover** and **walk** to *skills* because their `description` frontmatter opens with "Phase 1 autonomous discovery…" / "Phase 1.5 interview gates…" — no "use when the user says `/x`" phrasing for the classifier to latch onto. **Both are actually user-invoked slash commands.** Evidence:
+
+- The **router** (`vibe-walk` SKILL.md) routing table outputs `Run /vibe-walk:<step>?` and names `/vibe-walk:discover` and `/vibe-walk:walk` as the explicit next steps in a linear two-phase flow.
+- Both have **H1 titles** `# /vibe-walk:discover` and `# /vibe-walk:walk` — the slash form.
+- Cross-refs everywhere: "Next: `/vibe-walk:walk`", "tell the builder to run `/vibe-walk:discover` first", "re-run `/vibe-walk:walk`".
+
+This is exactly the case the cookbook warns about: a real entry point whose *description* is written as a capability blurb, not a trigger sentence. **Lesson reinforced:** classify on the router's hand-off targets + H1 + cross-refs, not just the description's opening phrasing. Both reclassified to `.agent/workflows/` with frontmatter swapped (`name` dropped, `description` rewritten to "Run when the user says `/discover`…").
+
+### Mechanical (port.py got it right)
+
+- Frontmatter swap on the 4 it correctly called workflows; path repoints (`~/.claude/...` → `~/.gemini/antigravity/...`, 8 data-path hits); `/vibe-walk:cmd` → `/cmd` (27 namespace repoints, including inside discover/walk bodies — so when reclassified they were already de-namespaced); "command start/end" → "workflow start/end"; agent.json minted from plugin.json.
+
+### Needed thought (the 20%)
+
+- **The discover/walk reclassification** (above) — the headline judgment call this port.
+- **The guide split.** Folded `sherpa-persona.md` + `posture.md` into AGENTS.md prose (always-on), **deleted them from the guide skill**; kept `conventions.md` (D1–D6 build constraints) + `friction-triggers.md` (trigger map) as situational skill-side files. Guide SKILL.md rewritten to a thin index.
+- **Relative-path direction after the move.** Workflows can't use `../guide/...` (resolves to `.agent/workflows/guide/`, which doesn't exist). Every workflow uses the root-absolute `.agent/skills/guide/...` form; only sibling **skills** keep `../guide/...`. Caught a leftover `../guide` in vitals' cross-refs that the move exposed.
+- **vitals' structural self-test had to be re-modeled for the port layout.** Source vitals checked "nine SKILL dirs under `plugins/vibe-walk/skills/`" + read `plugin.json`. Rewrote it to check 6 workflows + 3 skills under `.agent/`, read `.agent/agent.json`, the 2 surviving guide refs (not 4), and 4 build scripts (source listed 3 but `emit_trigger_wiring.py` exists). This is the first ported plugin with its own self-test — the self-test itself is a port surface.
+- **evolve-walk self-edit targets.** Added an explicit target-mapping block so proposals name the real port file (command behavior → `.agent/workflows/<cmd>.md`; persona/rules → `AGENTS.md`; conventions/triggers → guide-skill refs; helpers → `.agent/scripts/...`). Not a blind replace — discover/walk flipping to workflows changes their target dir.
+
+### Open-question findings (do NOT invent primitives)
+
+1. **Scheduled refresh / cron:** **None.** `/discover --refresh` is a manual user re-run, not a scheduled job. vibe-walk has zero `schedule`-plugin dependency (cleaner than vibe-iterate, whose weekly radar needed it).
+2. **`--silent` sidecar calls:** **None.** Linear flow (router → discover → walk), no sidecars returning structured data silently. Nothing to preserve here.
+3. **Workflow name collisions:** **Real risk.** `/bootstrap` collides with vibe-iterate's `/bootstrap`; `/discover`, `/walk`, `/vitals`, `/evolve-walk` are generic. Flag before installing alongside other ports — the family needs a namespacing convention (e.g. filename prefix → `/vibe-walk-discover`) decided once and applied across all ports.
+4. **`plugin_version` discovery:** `.agent/agent.json` holds `0.1.0` for the loggers' audit field. Same unverified-bookkeeping status as vibe-iterate.
+5. **Claude-only hooks:** **None.** No `hooks/` dir, no `hooks` key in plugin.json. No builder-profile usage either (no `~/.claude/profiles/builder.json`), so no profile repoint needed.
+
+### PORT-RUNNER.md gaps hit this port
+
+1. **Scripts are not addressed by the playbook.** vibe-walk is the **first script-bearing plugin** in the pipeline — it carries 8 helper scripts (Python discovery/build + a jscodeshift codemod). `port.py` did **not** copy them (the report listed zero `files_copied_verbatim`), and PORT-RUNNER.md has no step for "carry the scripts dir + repoint `${plugin}/scripts/...` body refs → `.agent/scripts/...`." I improvised: copied `scripts/` → `.agent/scripts/` (dropping `__pycache__` + `__tests__` dev artifacts), repointed the cross-ref pointers and the jscodeshift CLI path, and documented the script location in AGENTS.md + the guide skill. **The bare Python imports** (`from discovery.inventory_surfaces import inventory`) were left as-is (faithful to source); they assume `.agent/scripts/` on `sys.path`. **Recommend:** add a PORT-RUNNER step 11 — "Carry `scripts/` → `.agent/scripts/`; repoint `${plugin}/scripts/...` and `../../scripts/...` body refs; note the sys.path assumption for bare imports." And add `scripts` carry to the reusable checklist.
+2. **The self-test is its own port surface.** PORT-RUNNER.md doesn't call out that a `vitals`-style structural self-test hardcodes the *source* layout and must be re-modeled for the port. vibe-iterate had no vitals so this never surfaced. **Recommend:** a one-line note under step 7 — "if the plugin has a structural self-test (vitals/doctor), re-model its checks for the `.agent/` layout; it's the one workflow that asserts the directory shape."
+3. **Minor:** the inventory-surfaces script reads the host app's orientation docs and scans for `CLAUDE.md` (a host-app file, not a port artifact). Left unchanged — it's reading the *target app*, not the plugin. An Antigravity-aware enhancement would also scan `AGENTS.md`, but that's a behavior change, out of scope for a faithful port. Noted, not done.
+
+Otherwise PORT-RUNNER.md carried the rest cleanly — the guide split, edge-confirmation, guide-intro rewrites, evolve self-edit targets, and the open-questions re-check all mapped to existing steps.

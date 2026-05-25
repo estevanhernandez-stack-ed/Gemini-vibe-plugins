@@ -1,0 +1,150 @@
+{
+  "plugin_name": "vibe-walk",
+  "source": "C:\\Users\\estev\\Projects\\Vibe-Walk\\plugins\\vibe-walk",
+  "output": "C:\\Users\\estev\\Projects\\vibe-plugins-ports\\vibe-walk",
+  "summary": {
+    "workflows": 4,
+    "skills": 5,
+    "edge_classifications": 3,
+    "files_transformed": 15,
+    "files_copied_verbatim": 0,
+    "guide_intro_lines_to_synthesize": 12
+  },
+  "workflows": [
+    {
+      "name": "bootstrap",
+      "slash": "/bootstrap",
+      "reason": "real slash trigger (/vibe-walk:bootstrap) despite 'internal' self-label \u2014 trust the trigger (cookbook bootstrap lesson)",
+      "edge_flag": true
+    },
+    {
+      "name": "evolve-walk",
+      "slash": "/evolve-walk",
+      "reason": "user-invocable slash trigger (/vibe-walk:evolve-walk)",
+      "edge_flag": false
+    },
+    {
+      "name": "vibe-walk",
+      "slash": "/vibe-walk",
+      "reason": "user-invocable slash trigger (/vibe-walk)",
+      "edge_flag": false
+    },
+    {
+      "name": "vitals",
+      "slash": "/vitals",
+      "reason": "user-invocable slash trigger (/vibe-walk:vitals)",
+      "edge_flag": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "discover",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "edge_flag": true,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "friction-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "guide",
+      "reason": "shared-behavior reference, never user-invoked",
+      "edge_flag": false,
+      "carried_verbatim": true,
+      "guide_split": true
+    },
+    {
+      "name": "session-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "walk",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "edge_flag": true,
+      "carried_verbatim": false,
+      "guide_split": false
+    }
+  ],
+  "edge_classifications": [
+    {
+      "name": "bootstrap",
+      "classified_as": "workflow",
+      "reason": "real slash trigger (/vibe-walk:bootstrap) despite 'internal' self-label \u2014 trust the trigger (cookbook bootstrap lesson)",
+      "note": "VERIFY in finishing pass \u2014 self-label vs trigger disagreed, or no strong signal."
+    },
+    {
+      "name": "discover",
+      "classified_as": "skill",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "note": "VERIFY in finishing pass \u2014 self-label vs trigger disagreed, or no strong signal."
+    },
+    {
+      "name": "walk",
+      "classified_as": "skill",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "note": "VERIFY in finishing pass \u2014 self-label vs trigger disagreed, or no strong signal."
+    }
+  ],
+  "repoints_applied": {
+    "data-path": 8,
+    "plugin-root-manifest": 1,
+    "plugin-json": 2,
+    "plugin-namespaced-slash": 27,
+    "command-start-end": 4
+  },
+  "unknown_xref_targets": [],
+  "leftover_grep_hits": {
+    "guide-ref": [
+      ".agent\\skills\\discover\\SKILL.md: \u2026../guide\u2026",
+      ".agent\\skills\\discover\\SKILL.md: \u2026../guide\u2026",
+      ".agent\\skills\\discover\\SKILL.md: \u2026../guide\u2026",
+      ".agent\\skills\\discover\\SKILL.md: \u2026../guide\u2026",
+      ".agent\\skills\\friction-logger\\SKILL.md: \u2026../guide\u2026",
+      ".agent\\skills\\friction-logger\\SKILL.md: \u2026../guide\u2026",
+      ".agent\\skills\\friction-logger\\SKILL.md: \u2026../guide\u2026",
+      ".agent\\skills\\friction-logger\\SKILL.md: \u2026../guide\u2026"
+    ],
+    "claude-home": [
+      "AGENTS.md: \u2026~/.claude\u2026"
+    ]
+  },
+  "files_transformed": [
+    ".agent\\workflows\\bootstrap.md",
+    ".agent\\skills\\discover\\SKILL.md",
+    ".agent\\workflows\\evolve-walk.md",
+    ".agent\\skills\\friction-logger\\SKILL.md",
+    ".agent\\skills\\guide\\SKILL.md",
+    ".agent\\skills\\guide\\references\\conventions.md",
+    ".agent\\skills\\guide\\references\\friction-triggers.md",
+    ".agent\\skills\\guide\\references\\posture.md",
+    ".agent\\skills\\guide\\references\\sherpa-persona.md",
+    ".agent\\skills\\session-logger\\SKILL.md",
+    ".agent\\workflows\\vibe-walk.md",
+    ".agent\\workflows\\vitals.md",
+    ".agent\\skills\\walk\\SKILL.md",
+    ".agent/agent.json",
+    "AGENTS.md (skeleton \u2014 finishing pass)"
+  ],
+  "files_copied_verbatim": [],
+  "finishing_pass_todos": [
+    "AGENTS.md: synthesize the always-on layer as prose (persona, posture, knowledge sources, cross-plugin detection, hard rules, voice). The skeleton has TODO markers + source-doc hints.",
+    "Guide split: decide which guide reference docs are always-on (collapse into AGENTS.md prose, then DELETE from the guide skill so there's one source of truth) vs situational (keep as files in the guide skill). Rewrite the guide SKILL.md to a thin index. Schemas + trigger maps stay skill-side; personas + postures go AGENTS-side.",
+    "Guide-intro lines: 12 workflow/skill bodies had a '[../guide/SKILL.md]' intro line auto-rewritten to a generic pointer. Rewrite each to the per-file prose form (e.g. 'Persona/posture/Cart-detection are always-on via AGENTS.md\u2026').",
+    "Edge classification: 'bootstrap' -> workflow (real slash trigger (/vibe-walk:bootstrap) despite 'internal' self-label \u2014 trust the trigger (cookbook bootstrap lesson)). Confirm.",
+    "Edge classification: 'discover' -> skill (no real slash trigger or user-says phrasing \u2014 defaulted to skill). Confirm.",
+    "Edge classification: 'walk' -> skill (no real slash trigger or user-says phrasing \u2014 defaulted to skill). Confirm.",
+    "Self-edit targets in evolve-walk: the proposal shapes name files to edit ('plugins/<plugin>/skills/<cmd>/SKILL.md'). Repoint each to its real port target \u2014 '.agent/workflows/<cmd>.md' for ported workflows, '.agent/skills/<name>/...' for ported skills. This is NOT a blind string replace (a skill that became a workflow flips the target dir).",
+    "Folded-reference back-pointers: any body that said 'per ../guide/references/<doc>.md' for a doc that got collapsed into AGENTS.md must point at 'AGENTS.md \u00a7 <Section>' instead.",
+    "H1 titles / inline triggers: the script repoints frontmatter triggers and body slash names, but H1 headings and HTML-entity forms (e.g. '/plugin:rate &lt;idea&gt;') may need a hand pass for clean '/rate <idea>' form.",
+    "Open questions 1-5 (PORTING.md): re-check against THIS plugin's feature set \u2014 does it schedule (cron)? call sidecars silently? have hooks/? use ~/.claude/profiles/builder.json? namespace-collide on workflow names? Document the answers; do NOT invent Antigravity primitives.",
+    "Leftover grep hits remain (see leftover_grep_hits) \u2014 review each; some are legitimate (the AGENTS.md repoint note mentions the old path on purpose), some are misses to clean up."
+  ]
+}
