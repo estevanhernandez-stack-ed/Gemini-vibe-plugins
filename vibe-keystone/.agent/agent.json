@@ -1,0 +1,17 @@
+{
+  "name": "vibe-keystone",
+  "version": "0.2.1",
+  "description": "Bootstrap a 626Labs-pattern AGENTS.md for any repository. The keystone is the load-bearing structural file — every agent decision in the repo rests on it. Inventories the repo, confirms scope, and produces an AGENTS.md adapted to the repo type (code platform / marketing site / long-form writing / mixed). Antigravity port of the Claude Code vibe-keystone plugin (which produced CLAUDE.md).",
+  "author": "626Labs LLC",
+  "license": "MIT",
+  "source_plugin": {
+    "marketplace": "vibe-plugins",
+    "name": "vibe-keystone",
+    "version": "0.2.1",
+    "format": "claude-code"
+  },
+  "port": {
+    "target": "antigravity-2.0",
+    "notes": "Manifest mirrors the Claude Code plugin.json version, kept for cross-port consistency and the opt-in capture log's plugin_version audit field. vibe-keystone has no skills and no session/friction loggers — the eponymous main command ported to the router workflow /vibe-keystone, and evolve-keystone to /vibe-keystone-evolve. Antigravity discovers workflows from .agent/workflows/ — this file is a port-bookkeeping manifest, not a discovery requirement."
+  }
+}

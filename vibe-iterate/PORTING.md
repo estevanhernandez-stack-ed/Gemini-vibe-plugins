@@ -217,3 +217,65 @@ This is exactly the case the cookbook warns about: a real entry point whose *des
 3. **Minor:** the inventory-surfaces script reads the host app's orientation docs and scans for `CLAUDE.md` (a host-app file, not a port artifact). Left unchanged — it's reading the *target app*, not the plugin. An Antigravity-aware enhancement would also scan `AGENTS.md`, but that's a behavior change, out of scope for a faithful port. Noted, not done.
 
 Otherwise PORT-RUNNER.md carried the rest cleanly — the guide split, edge-confirmation, guide-intro rewrites, evolve self-edit targets, and the open-questions re-check all mapped to existing steps.
+
+## vibe-keystone@0.2.1 (ported 2026-05-24)
+
+**Shape:** 2 source skills → **2 workflows + 0 skills** + AGENTS.md + agent.json. The minimal plugin shape in the family — no `guide` skill, no loggers, no scripts. Keystone is a once-per-repo generator, so it carries only opt-in capture (Tier 0) + reflective proposal (Tier 1), not the full session/friction/decay stack.
+
+| Source skill | Source self-label | Port target | Why |
+|---|---|---|---|
+| `keystone` | description = "Bootstrap a CLAUDE.md…" + lists `/keystone` trigger, no "use when the user says" phrasing for the classifier to latch onto | **workflow** `/vibe-keystone` (the **router**) | **Reclassified — see the eponymous-command edge below.** It IS the plugin's primary user-invoked command. |
+| `evolve-keystone` | user-invocable (`/vibe-keystone:evolve-keystone`) | **workflow** `/vibe-keystone-evolve` | L1 self-evolution, user-typed. port.py classified this correctly. |
+
+### The eponymous-command edge (the headline call this port)
+
+`port.py` defaulted **keystone** to a *skill* named `vibe-keystone-keystone` ("no real slash trigger or user-says phrasing — defaulted to skill"). That's wrong twice over:
+
+1. **It's user-invoked.** The source description lists `/keystone` and trigger phrases ("set up CLAUDE.md", "bootstrap claude md"); the H1 is `# Keystone — bootstrap…`; the README opens "You type `/keystone`…". It's an entry point, not loaded-by-something-else. → workflow, not skill.
+2. **It's the eponymous main command** — its name equals the plugin name. The namespacing convention (step 6.5) collapses this to the **bare router form** `/<plugin>` (file `vibe-keystone.md` → `/vibe-keystone`), **not** `/<plugin>-<cmd>` which would yield the absurd doubled `/vibe-keystone-keystone`. So the resolution is: promote the skill `.agent/skills/vibe-keystone-keystone/` → workflow `.agent/workflows/vibe-keystone.md`, swap frontmatter (drop `name`, `description`-only), and delete the now-empty `skills/` dir.
+
+**Lesson (new):** when the source plugin has a skill whose name == the plugin name AND it's user-invoked, it ports to the **router** `/<plugin>` — never `/<plugin>-<plugin>`. `port.py`'s `<plugin>-<skill>` skill-namespacing rule produces the doubled form for the eponymous case; catch it in the finishing pass. (Distinct from vibe-iterate/vibe-walk, where the bare router was already its own separate source skill the classifier saw as user-invocable.)
+
+### The CLAUDE.md → AGENTS.md meta-adaptation (keystone's whole job)
+
+Every other port repoints `CLAUDE.md → AGENTS.md` as plumbing (a path in a logger, a rules-file reference). **For keystone, that repoint IS the product.** Keystone *bootstraps the project rules file* — on Claude Code that's `CLAUDE.md`; in the Antigravity port the file it writes must be `AGENTS.md`. port.py did 23 string repoints (`CLAUDE.md` → `AGENTS.md` across the skeleton, the interview, the self-check, the quick-reference) and left 3 leftover `CLAUDE.md` hits in the skill description's trigger phrases.
+
+The finishing-pass judgment: verify the framing reads **semantically** right end-to-end, not just that the strings flipped. The workflow now produces an `AGENTS.md` ("the load-bearing structural file every agent decision rests on" = AGENTS.md); the repo-type adaptation, the tenant interview, and the skeleton all target AGENTS.md. **Kept CLAUDE.md mentions deliberately** in three places where they're *cross-tool context*, not output targets: (a) a tooling note in the workflow ("the Claude Code original wrote CLAUDE.md; you may *read* a CLAUDE.md for context, but write AGENTS.md"); (b) the agent.json provenance line; (c) the README adaptation table. The OUTPUT contract is unambiguously AGENTS.md. Half-CLAUDE/half-AGENTS phrasing (e.g. "produce a CLAUDE.md following the project-CLAUDE pattern") was the trap — rewrote those to "produce an AGENTS.md following the project-rules pattern."
+
+**Lesson (new):** a plugin whose *purpose* is generating the rules file makes the rules-file repoint a content rewrite, not a string swap. Read the whole body for output-vs-context: the file it WRITES must be the target tool's rules file; the file it may READ can stay the source tool's. Don't let the title/skeleton keep saying "CLAUDE.md" while the output flips.
+
+### The no-guide / no-loggers minimal shape
+
+Keystone has no `guide` skill, no session-logger, no friction-logger, no scripts, no persona/posture reference docs. PORT-RUNNER steps 1–2 (synthesize AGENTS.md from guide references; do the guide split) and the logger-related verifications **have no source material**. The skeleton AGENTS.md port.py wrote was all-TODO with "(no guide skill detected — supply persona/posture by hand)" markers.
+
+**AGENTS.md decision: minimal, not omitted.** There's no persona to invent and no shared posture layer — so I did NOT manufacture one. But two genuinely always-on facts justify a lean AGENTS.md over omission: (1) the rules-file meta-fact (this plugin's OUTPUT is `AGENTS.md`, never `CLAUDE.md` — load-bearing for correctness), and (2) the no-telemetry / no-scripts / capture-log-location hard rules that both workflows share. The result is a ~60-line AGENTS.md: "what this plugin does", workflows list, hard rules, the opt-in-capture framing + log repoint, and a voice paragraph. Append-safe, no invented persona.
+
+**Lesson (new):** "no guide skill" ≠ "no AGENTS.md." Even a guide-less plugin can have always-on facts (output contract, hard rules, log path) worth a minimal AGENTS.md. The bar is *is anything true for every run of this plugin?* — if yes, fold it; if there's genuinely nothing always-on, omit. For keystone, the output-is-AGENTS.md fact alone earns the file.
+
+### Mechanical (port.py got it right)
+
+- The 23 `CLAUDE.md` → `AGENTS.md` skeleton repoints; the `~/.claude/...` → `~/.gemini/antigravity/...` data-path + global-config repoints (5 claude-home, 2 data-path); `/vibe-keystone:evolve-keystone` → `/vibe-keystone-evolve`; agent.json minted from plugin.json; evolve-keystone correctly classified as a workflow.
+
+### Needed thought (the 20%)
+
+- **The eponymous-command → router reclassification** (above) — the headline call.
+- **The CLAUDE.md → AGENTS.md semantic verification** (above) — output-vs-context judgment, not a string swap.
+- **The minimal-AGENTS.md decision** (above) — fold the always-on facts, invent no persona.
+- **evolve-keystone self-edit targets.** Source proposals named `plugins/vibe-keystone/skills/keystone/SKILL.md` as the file to edit. Because `keystone` flipped to the **router workflow**, every self-edit target repointed to `.agent/workflows/vibe-keystone.md` (Before-You-Start read target, the proposal-location reference, and the "never edit" hard constraint). Classic skill→workflow target flip — not a blind replace.
+
+### Open-question findings (do NOT invent primitives)
+
+1. **Scheduled refresh / cron:** **None.** Keystone is a one-shot generator. No `schedule` dependency.
+2. **`--silent` sidecar calls:** **None.** Two independent workflows; no sidecar returning structured data.
+3. **Workflow name collisions:** **RESOLVED — namespacing.** `/vibe-keystone` (router, bare) + `/vibe-keystone-evolve`. The eponymous case is exactly why the router stays `/<plugin>` and doesn't become `/<plugin>-<plugin>`.
+4. **`plugin_version` discovery:** `.agent/agent.json` holds `0.2.1` for the (absent) loggers' audit field — bookkeeping only; keystone has no loggers that read it, but kept for family consistency.
+5. **Claude-only hooks:** **None.** No `hooks/` dir, no `hooks` key in plugin.json. **Builder-profile note:** PRIVACY.md says keystone reads `~/.claude/profiles/builder.json`, but the **skill bodies do not** — the interview asks the user to *name* tenant-doc paths rather than auto-reading the global profile. So there's no active `builder.json` read to repoint; the global-config references in the workflow (a global rules file the user may name) were generalized, not hard-pinned to a `~/.gemini/profiles/builder.json` path. No functional profile repoint required.
+
+### PORT-RUNNER.md gaps hit this port
+
+1. **No guidance for the eponymous-command → router case.** PORT-RUNNER step 3 (edge classifications) covers "skill defaulted to `skill` but has a hidden entry point → move to workflows" — but doesn't name the sub-case where that skill's name == the plugin name, which forces the **router** target `/<plugin>` (not `/<plugin>-<cmd>`, and definitely not the doubled `/<plugin>-<plugin>` that `port.py`'s skill-namespacing produces). **Recommend:** add to step 3 / step 6.5 — "If the reclassified skill's name equals the plugin name, its workflow target is the bare router `<plugin>.md` → `/<plugin>`. Delete the `<plugin>-<plugin>` skill dir port.py minted; do not ship the doubled slash."
+2. **No guidance for the rules-file-generator plugin (output-vs-context CLAUDE.md).** PORT-RUNNER step 9's leftover-grep lists `CLAUDE.md` as a thing to drive toward zero — but for a plugin whose *output* is the rules file, some `CLAUDE.md` mentions are **intentional cross-tool context** (the file it may READ) while the OUTPUT must be `AGENTS.md`. A blind "kill all CLAUDE.md" would break the meta-explanation. **Recommend:** a note under step 9 — "For a rules-file generator (keystone), distinguish output target (must be `AGENTS.md`) from cross-tool context (a `CLAUDE.md` it may read / mention for provenance). Verify the *output contract* semantically; not every `CLAUDE.md` hit is a miss."
+3. **PORT-RUNNER step 1 assumes a guide skill exists** ("The script writes an AGENTS.md skeleton with TODO markers and hints naming the source guide reference docs"). For a no-guide plugin the skeleton is all-TODO with "no guide skill detected" markers, and steps 1–2 have no source material. The playbook doesn't say what to do when there's no guide: omit AGENTS.md, or write a minimal one? **Recommend:** a note under step 1 — "No guide skill ≠ no AGENTS.md. Fold any always-on facts the plugin has (output contract, hard rules, log path); invent no persona. Omit AGENTS.md only if genuinely nothing is always-on."
+4. **Path note (not a content gap):** the task brief and step 10 say append to `tools/PORTING.md`, but the canonical cookbook is `vibe-iterate/PORTING.md` (where vibe-walk's entry lives, and what PORT-RUNNER.md's header points to as the authority). There is no `tools/PORTING.md`. Appended here to keep one cookbook. **Recommend:** PORT-RUNNER step 10 should name the cookbook path explicitly (`vibe-iterate/PORTING.md`) to avoid the ambiguity.
+
+Otherwise PORT-RUNNER.md carried the rest cleanly — the edge-confirmation discipline, the evolve self-edit-target retargeting, the namespacing verification, and the open-questions re-check all mapped to existing steps. The guide-split steps (1, 2, 4, 5) and the script-carry / self-test gaps from vibe-walk simply didn't apply (no guide, no scripts, no vitals).
