@@ -120,6 +120,16 @@ No real logic was dropped. Preserved intact:
 - Friction-trigger map (every per-command row), session/friction entry shapes, orphan detection.
 - Self-evolving framework wiring (Levels 2 + 3) — only the log path changed.
 
+## Validated live (2026-05-24, Celestia3)
+
+The pilot was installed and run in a real Antigravity 2.0 instance on the Celestia3 project. Confirmed:
+
+- **Directory convention is `.agent/` (singular).** Antigravity's own agent wrote `.agent/workflows/`, `.agent/skills/`, `.agent/agent.json`. The `.agent` vs `.agents` doc ambiguity is settled — use `.agent/`.
+- **Install UX is agentic.** Handing Antigravity the repo URL and asking it to set up the plugin is the canonical install: it `git clone`s the port, copies `.agent/*` into the target project, and **appends** the port's `AGENTS.md` rules into the project's existing `AGENTS.md` (non-destructive — it read the project's CLAUDE.md/AGENTS.md first), then deletes the temp clone. No manual file shuffling needed.
+- **AGENTS.md is merge-append, not standalone.** The port's AGENTS.md content becomes an addition to the project's ruleset. (Cookbook implication: keep each port's AGENTS.md self-contained and append-safe — no assumptions about being the only rules.)
+- **Project-local state carries over.** The existing `.vibe-iterate/config.json` (framework pins) + `atlas.jsonl` from the Claude Code side were preserved and reused by the port untouched. The project-local data layer is portable as-is; only the home-dir self-evolution logs repoint (`~/.claude/...` → `~/.gemini/antigravity/...`).
+- **Full plugin loaded, behaving normally.** All 13 workflows + 3 skills installed; modes run.
+
 ## Open questions (no clean Antigravity equivalent — do NOT invent)
 
 1. **Scheduled refresh.** The weekly radar cache refresh was powered by the Claude Code `schedule` plugin's cron. Antigravity's scheduled-task/cron mechanism (if any) is unverified. **Mitigation in the port:** `/radar` supports a manual `--refresh`; banner modes degrade gracefully on stale/missing cache. **To resolve:** confirm whether Antigravity has a cron/scheduled-agent primitive and wire the weekly job, or document radar as manual-refresh-only. This is the only place `schedule` was load-bearing.

@@ -28,9 +28,13 @@ The full recipe — the user-invocable-vs-internal split and every Claude→Anti
 
 ## Installing a port in Antigravity
 
-Drop the port's `.agent/` folder + `AGENTS.md` into your project root; Antigravity auto-discovers (workflows → slash commands, skills → semantic, `AGENTS.md` → rules). Type a workflow like `/vibe-iterate` to confirm it loaded.
+**Easiest — hand Antigravity the repo.** Point the Antigravity agent at this repo and ask it to set up the plugin. It clones, copies the port's `.agent/` into your project, and **merges** the port's `AGENTS.md` into your project's rules (append, non-destructive — it reads your existing rules first). Then type a workflow like `/vibe-iterate`.
 
-> **Directory-name caveat:** Google's own codelabs disagree on `.agent/` (singular) vs `.agents/` (plural) for the workspace config dir, and on the global path. The ports use `.agent/`. Confirm against your Antigravity build — if a workflow doesn't appear after dropping the folder in, rename `.agent/` → `.agents/`. Once confirmed, the cookbook gets pinned to the right convention.
+**Manual alternative:** copy the port's `.agent/` folder + `AGENTS.md` into your project root.
+
+Either way Antigravity auto-discovers: `.agent/workflows/*.md` → slash commands, `.agent/skills/*/SKILL.md` → semantic, `AGENTS.md` → always-on rules.
+
+> **Convention confirmed:** `.agent/` (singular). Validated live on Celestia3 (2026-05-24) — Antigravity's agent set the port up from this repo and ran it normally, project-local `.vibe-iterate/` state carried over intact.
 
 ## Built by [626 Labs](https://626labs.dev)
 
