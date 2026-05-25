@@ -323,6 +323,149 @@ def rewrite_cross_refs(
     return text
 
 
+# ---------------------------------------------------------------------------
+# Plugin-prefix namespacing (Antigravity slash names are flat — no plugin
+# namespace — so two installed ports with a generic /bootstrap collide).
+# Convention: the router workflow (file named <plugin>.md) stays /<plugin>;
+# every other workflow becomes /<plugin>-<cmd>; an evolve-<anything> collapses
+# to /<plugin>-evolve; every skill dir + its frontmatter name becomes
+# <plugin>-<skill>. Self-labeling + collision-free. The live observation that
+# motivated it: bare workflow names (/bootstrap, /walk) were unidentifiable in
+# Antigravity's flat slash list once multiple ports were installed.
+# ---------------------------------------------------------------------------
+
+def namespace_rename_map(
+    plugin: str,
+    workflow_names,
+    skill_names,
+) -> tuple[dict[str, str], dict[str, str]]:
+    """Compute the (cmd_map, skill_map) for the prefix convention.
+
+    cmd_map maps every workflow basename to its namespaced basename:
+      - the router (basename == plugin) maps to itself (unchanged),
+      - evolve-<anything> collapses to <plugin>-evolve,
+      - everything else becomes <plugin>-<cmd>.
+    skill_map maps every skill dir name to <plugin>-<skill>.
+    Idempotent: a name already carrying the <plugin>- prefix is left as-is so
+    re-running never doubles the prefix.
+    """
+    cmd_map: dict[str, str] = {}
+    for name in workflow_names:
+        if name == plugin:
+            cmd_map[name] = name                      # router — identity
+        elif name.startswith(f"{plugin}-"):
+            cmd_map[name] = name                      # already namespaced
+        elif name.startswith("evolve"):
+            cmd_map[name] = f"{plugin}-evolve"        # collapse evolve-*
+        else:
+            cmd_map[name] = f"{plugin}-{name}"
+    skill_map: dict[str, str] = {}
+    for name in skill_names:
+        if name.startswith(f"{plugin}-"):
+            skill_map[name] = name
+        else:
+            skill_map[name] = f"{plugin}-{name}"
+    return cmd_map, skill_map
+
+
+def rewrite_namespaced_refs(
+    text: str,
+    plugin: str,
+    cmd_map: dict[str, str],
+    skill_map: dict[str, str],
+) -> tuple[str, int]:
+    """Rewrite every reference to a renamed command/skill in `text`.
+
+    Word-boundary-aware and order-safe: longer source names are replaced before
+    shorter ones so /scan-releases is handled before any /scan, /evolve-walk
+    before /walk, /ux-polish before substrings, and the router /<plugin> is
+    never corrupted. Returns (new_text, change_count).
+
+    Covered ref forms:
+      - file paths: skills/<skill>/, ../<skill>/, /<skill>/references,
+        workflows/<cmd>.md, /<plugin>/<cmd> (double-slash evolve form)
+      - skill identity: `<skill>`, "<skill> skill", <skill>.method(),
+        bare hyphenated logger names on word boundaries
+      - slash commands: /<cmd>, in H1 titles, descriptions, prose
+    The router slash /<plugin> and the plugin token itself are preserved.
+    """
+    count = 0
+
+    def sub(pattern: str, repl, s: str, flags=0):
+        nonlocal count
+        s2, n = re.subn(pattern, repl, s, flags=flags)
+        count += n
+        return s2
+
+    # Renamed-command names, longest first (so /scan-releases beats /scan etc.).
+    cmd_items = sorted(
+        ((o, n) for o, n in cmd_map.items() if o != n),
+        key=lambda kv: len(kv[0]), reverse=True,
+    )
+    # Renamed-skill names, longest first.
+    skill_items = sorted(
+        ((o, n) for o, n in skill_map.items() if o != n),
+        key=lambda kv: len(kv[0]), reverse=True,
+    )
+
+    # --- 1. File-path forms for skills (most specific first) -----------------
+    for old, new in skill_items:
+        eo = re.escape(old)
+        # .agent/skills/<old>/  and  skills/<old>/
+        text = sub(rf"(skills/){eo}(/)", rf"\g<1>{new}\g<2>", text)
+        # ../<old>/   (sibling skill relative link: ../<old>/SKILL.md,
+        # ../<old>/references/…)
+        text = sub(rf"(\.\./){eo}(/)", rf"\g<1>{new}\g<2>", text)
+
+    # --- 2. Double-slash router/command form: /<plugin>/<cmd> ----------------
+    # e.g. "/vibe-iterate/evolve-iterate" -> "/vibe-iterate-evolve".
+    for old, new in cmd_items:
+        eo = re.escape(old)
+        text = sub(rf"/{re.escape(plugin)}/{eo}(?![\w-])", f"/{new}", text)
+
+    # --- 3. Workflow file-path form: workflows/<cmd>.md ----------------------
+    for old, new in cmd_items:
+        eo = re.escape(old)
+        text = sub(rf"(workflows/){eo}(\.md)", rf"\g<1>{new}\g<2>", text)
+
+    # --- 4. Slash commands in prose / H1 / descriptions ---------------------
+    # Replace /<cmd> only when not already prefixed (negative lookbehind on the
+    # plugin prefix protects /<plugin>-… and the router /<plugin>).
+    for old, new in cmd_items:
+        eo = re.escape(old)
+        text = sub(
+            rf"(?<![\w-])/{eo}(?![\w-])",
+            f"/{new}",
+            text,
+        )
+
+    # --- 5. Skill identity references ---------------------------------------
+    for old, new in skill_items:
+        eo = re.escape(old)
+        # method-call form: <skill>.start( / .log( / .detect_orphans(
+        text = sub(rf"(?<![\w-]){eo}(\.[a-z_]+\()", rf"{new}\1", text)
+        # backtick-wrapped identity: `<skill>`
+        text = sub(rf"`{eo}`", f"`{new}`", text)
+        # "<skill> skill" phrasing (the X skill / X skill)
+        text = sub(rf"(?<![\w-]){eo}(\s+skill\b)", rf"{new}\1", text)
+        # "# <skill> —" H1 title for the skill's own SKILL.md
+        text = sub(rf"(^#\s+){eo}(\s+—)", rf"\g<1>{new}\g<2>", text,
+                   flags=re.MULTILINE)
+        # bare word-boundary hits for the hyphenated loggers — distinctive
+        # enough never to appear as ordinary English (session-logger,
+        # friction-logger). The single-token 'guide' is intentionally NOT
+        # blanket-replaced here (it's a common word in prose); its identity
+        # hits are covered by the path/backtick/"X skill" passes above.
+        if "-" in old:
+            text = sub(rf"(?<![\w-]){eo}(?![\w-])", new, text)
+
+    # --- 6. H1 title for renamed workflows: "# /<cmd> —" --------------------
+    # Already covered by pass 4's slash rewrite, but the leading "# /" form is
+    # the same token; nothing extra needed.
+
+    return text, count
+
+
 # Frontmatter rewrite for workflows: drop name, rewrite description trigger.
 DESC_TRIGGER_RE = re.compile(
     r"This skill should be used when the user says\s*", re.IGNORECASE
@@ -351,11 +494,13 @@ def rewrite_workflow_frontmatter(fm: dict, plugin_name: str) -> str:
     return f'---\ndescription: "{desc}"\n---\n'
 
 
-def rewrite_skill_frontmatter(fm: dict, plugin_name: str) -> str:
-    """Emit Antigravity skill frontmatter: keep name, rewrite description to
-    note internal status + the Antigravity log path. Light touch — the finishing
+def rewrite_skill_frontmatter(fm: dict, plugin_name: str,
+                              name_override: str | None = None) -> str:
+    """Emit Antigravity skill frontmatter: set name (namespaced via
+    name_override under the prefix convention), rewrite description to note
+    internal status + the Antigravity log path. Light touch — the finishing
     pass may add the 'Antigravity port' note prose."""
-    name = fm.get("name", "")
+    name = name_override if name_override is not None else fm.get("name", "")
     desc = fm.get("description", "")
     desc = desc.replace("~/.claude/plugins/data/", "~/.gemini/antigravity/data/")
     desc = desc.replace("not a slash command", "not a user workflow")
@@ -386,6 +531,7 @@ class PortReport:
     files_transformed: list[str] = field(default_factory=list)
     files_copied_verbatim: list[str] = field(default_factory=list)
     finishing_pass_todos: list[str] = field(default_factory=list)
+    namespacing: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -400,6 +546,7 @@ class PortReport:
                 "files_copied_verbatim": len(self.files_copied_verbatim),
                 "guide_intro_lines_to_synthesize": self.guide_ref_hits,
             },
+            "namespacing": self.namespacing,
             "workflows": self.workflows,
             "skills": self.skills,
             "edge_classifications": self.edge_classifications,
@@ -486,7 +633,9 @@ def collect_skills(src: Path, plugin_name: str) -> list[SkillInfo]:
 
 def copytree_verbatim(src: Path, dst: Path, report: PortReport, out_root: Path,
                       repoints: list[Repoint], workflow_names: set[str],
-                      skill_names: set[str]):
+                      skill_names: set[str], plugin_name: str = "",
+                      cmd_map: dict | None = None,
+                      skill_map: dict | None = None):
     """Carry the guide's sub-dirs into the port.
 
     Split per the cookbook's "carry verbatim" rule, honestly applied:
@@ -518,6 +667,9 @@ def copytree_verbatim(src: Path, dst: Path, report: PortReport, out_root: Path,
                 text = apply_repoints(text, repoints)
                 text = rewrite_cross_refs(text, workflow_names, skill_names,
                                           report)
+                if cmd_map is not None and skill_map is not None:
+                    text, _ = rewrite_namespaced_refs(
+                        text, plugin_name, cmd_map, skill_map)
                 target.write_text(text, encoding="utf-8")
                 report.files_transformed.append(
                     str(target.relative_to(out_root))
@@ -673,6 +825,20 @@ def run_port(src: Path, out: Path, plugin_name: str | None,
     workflow_names = {s.name for s in skills if s.classification == "workflow"}
     skill_names = {s.name for s in skills if s.classification == "skill"}
 
+    # Plugin-prefix namespacing (Antigravity slash names are flat — no plugin
+    # namespace). Router stays /<plugin>; other workflows -> /<plugin>-<cmd>;
+    # evolve-* -> /<plugin>-evolve; skills -> <plugin>-<skill>. Compute the maps
+    # up front so both the rename and the ref-rewrite agree.
+    cmd_map, skill_map = namespace_rename_map(
+        plugin_name, sorted(workflow_names), sorted(skill_names)
+    )
+    report.namespacing = {
+        "convention": "router=/<plugin>; other workflows=/<plugin>-<cmd>; "
+                      "evolve-*=/<plugin>-evolve; skills=<plugin>-<skill>",
+        "workflow_renames": {f"/{o}": f"/{n}" for o, n in cmd_map.items()},
+        "skill_renames": dict(skill_map),
+    }
+
     # Output skeleton dirs
     wf_dir = out / ".agent" / "workflows"
     sk_dir = out / ".agent" / "skills"
@@ -682,35 +848,49 @@ def run_port(src: Path, out: Path, plugin_name: str | None,
     repoints = build_repoints(plugin_name)
 
     for s in skills:
-        # transform the body (shared repoints + cross-ref rewrite)
+        # transform the body (shared repoints + cross-ref rewrite), then apply
+        # the namespacing ref-rewrite so every slash/skill ref points at the
+        # prefixed name.
         body = apply_repoints(s.body, repoints)
         body = rewrite_cross_refs(body, workflow_names, skill_names, report)
+        body, _ = rewrite_namespaced_refs(body, plugin_name, cmd_map, skill_map)
 
         if s.classification == "workflow":
+            new_name = cmd_map[s.name]
             fm_out = rewrite_workflow_frontmatter(s.frontmatter, plugin_name)
-            dest = wf_dir / f"{s.name}.md"
+            fm_out, _ = rewrite_namespaced_refs(fm_out, plugin_name,
+                                                cmd_map, skill_map)
+            dest = wf_dir / f"{new_name}.md"
             dest.write_text(fm_out + body, encoding="utf-8")
             report.files_transformed.append(
                 str(dest.relative_to(out))
             )
             report.workflows.append({
-                "name": s.name,
-                "slash": f"/{s.name}",
+                "name": new_name,
+                "slash": f"/{new_name}",
+                "source_name": s.name,
                 "reason": s.reason,
                 "edge_flag": s.edge_flag,
             })
         else:
-            fm_out = rewrite_skill_frontmatter(s.frontmatter, plugin_name)
-            dest_dir = sk_dir / s.name
+            new_name = skill_map[s.name]
+            # Frontmatter name is the namespaced skill identity (handles the
+            # single-token 'guide' that the body ref-rewrite intentionally
+            # leaves alone in prose).
+            fm_out = rewrite_skill_frontmatter(s.frontmatter, plugin_name,
+                                               name_override=new_name)
+            dest_dir = sk_dir / new_name
             dest_dir.mkdir(parents=True, exist_ok=True)
             (dest_dir / "SKILL.md").write_text(fm_out + body, encoding="utf-8")
             report.files_transformed.append(
                 str((dest_dir / "SKILL.md").relative_to(out))
             )
             copytree_verbatim(s.src_dir, dest_dir, report, out,
-                              repoints, workflow_names, skill_names)
+                              repoints, workflow_names, skill_names,
+                              plugin_name, cmd_map, skill_map)
             report.skills.append({
-                "name": s.name,
+                "name": new_name,
+                "source_name": s.name,
                 "reason": s.reason,
                 "edge_flag": s.edge_flag,
                 "carried_verbatim": s.has_extra_files,
@@ -726,14 +906,18 @@ def run_port(src: Path, out: Path, plugin_name: str | None,
                         "disagreed, or no strong signal.",
             })
 
-    # Scaffold agent.json + AGENTS.md
-    (out / ".agent" / "agent.json").write_text(
-        make_agent_json(manifest, plugin_name), encoding="utf-8"
-    )
+    # Scaffold agent.json + AGENTS.md, then apply the namespacing ref-rewrite so
+    # the manifest notes ('session-logger/friction-logger') and the skeleton's
+    # guide-skill path point at the prefixed names.
+    agent_json_text = make_agent_json(manifest, plugin_name)
+    agent_json_text, _ = rewrite_namespaced_refs(
+        agent_json_text, plugin_name, cmd_map, skill_map)
+    (out / ".agent" / "agent.json").write_text(agent_json_text, encoding="utf-8")
     report.files_transformed.append(".agent/agent.json")
-    (out / "AGENTS.md").write_text(
-        make_agents_skeleton(plugin_name, guide), encoding="utf-8"
-    )
+    agents_text = make_agents_skeleton(plugin_name, guide)
+    agents_text, _ = rewrite_namespaced_refs(
+        agents_text, plugin_name, cmd_map, skill_map)
+    (out / "AGENTS.md").write_text(agents_text, encoding="utf-8")
     report.files_transformed.append("AGENTS.md (skeleton — finishing pass)")
 
     # Repoint tally + leftover grep
@@ -750,6 +934,13 @@ def run_port(src: Path, out: Path, plugin_name: str | None,
         "source of truth) vs situational (keep as files in the guide skill). "
         "Rewrite the guide SKILL.md to a thin index. Schemas + trigger maps "
         "stay skill-side; personas + postures go AGENTS-side.",
+        "Namespacing applied: every non-router workflow is /<plugin>-<cmd>, "
+        "evolve-* collapsed to /<plugin>-evolve, skills are <plugin>-<skill> "
+        "(dir + frontmatter name). See report.namespacing for the rename map. "
+        "Spot-check that no bare command slash-ref survived (only the router "
+        "/<plugin> is bare) and that prose using a skill's plain word (e.g. the "
+        "common noun 'guide') reads correctly — the ref-rewrite only namespaces "
+        "the skill IDENTITY (backtick/'X skill'/path/method-call), not prose.",
     ]
     if report.guide_ref_hits:
         todos.append(
@@ -823,6 +1014,9 @@ def print_report(report: PortReport):
             tags.append("EDGE")
         suffix = ("  [" + ", ".join(tags) + "]") if tags else ""
         print(f"  skill     {s['name']}{suffix}")
+    if r.namespacing:
+        print("\nNamespacing (plugin-prefix convention; router stays bare):")
+        print(f"  {r.namespacing['convention']}")
     print(f"\nRepoints applied: {r.repoints_applied}")
     if r.edge_classifications:
         print("\nEdge classifications (verify in finishing pass):")

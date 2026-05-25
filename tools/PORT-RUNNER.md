@@ -134,23 +134,87 @@ pointer (repointed); if it was folded, redirect to the AGENTS.md section.
 
 If the plugin has an `evolve-*` workflow, its proposal shapes name files to edit:
 `plugins/<plugin>/skills/<cmd>/SKILL.md`. These must repoint to the **real port
-target**, and the target depends on what the source skill became:
+target** — which is now also the **namespaced** target (step 6.5):
 
-- A source skill that ported to a **workflow** → `.agent/workflows/<cmd>.md`.
-- A source skill that stayed a **skill** → `.agent/skills/<name>/SKILL.md`.
-- Trigger maps / schemas → their kept path under `.agent/skills/guide/`.
+- A source skill that ported to a **workflow** → `.agent/workflows/<plugin>-<cmd>.md`
+  (router → `.agent/workflows/<plugin>.md`; an `evolve-*` →
+  `.agent/workflows/<plugin>-evolve.md`).
+- A source skill that stayed a **skill** → `.agent/skills/<plugin>-<name>/SKILL.md`.
+- Trigger maps / schemas → their kept path under `.agent/skills/<plugin>-guide/`.
 
 This is why it can't be a string replace: `feature-add` flips to a workflow but
 `friction-triggers.md` stays skill-side. Use the report's `workflows` / `skills`
-lists as the lookup table.
+lists (each carries `name` = the namespaced target and `source_name` = the
+original) as the lookup table.
+
+---
+
+## 6.5. Plugin-prefix namespacing (REQUIRED — applied by `port.py`)
+
+Antigravity slash names are **flat** — there is no `/plugin:cmd` namespace like
+Claude Code's. Two installed ports that each expose a bare `/bootstrap` collide,
+and the live observation that forced this step: **bare workflow names
+(`/bootstrap`, `/walk`, `/radar`) were unidentifiable in Antigravity's flat
+slash list once more than one port was installed.** You could not tell whose
+`/bootstrap` you were about to run.
+
+The convention — **self-labeling + collision-free**:
+
+| Source | Namespaced name | Slash |
+|---|---|---|
+| Router workflow (file named `<plugin>.md`) | unchanged | `/<plugin>` |
+| Any other workflow `<cmd>.md` | `<plugin>-<cmd>.md` | `/<plugin>-<cmd>` |
+| `evolve-<anything>.md` (collapse the redundancy) | `<plugin>-evolve.md` | `/<plugin>-evolve` |
+| Skill dir `<skill>/` + its frontmatter `name:` | `<plugin>-<skill>/`, `name: <plugin>-<skill>` | — |
+
+`port.py` does this automatically: it renames the files/dirs, sets the skill
+frontmatter `name`, and rewrites **every** reference — bare slash-refs
+(`/discover` → `/<plugin>-discover`), H1 titles (`# /discover — …`), `description:`
+frontmatter, skill-identity refs (`` `guide` ``, "the X skill",
+`session-logger.start()`, `friction-logger.log()`), and the relative file paths
+(`.agent/skills/<skill>/`, `../<skill>/SKILL.md`, `workflows/<cmd>.md`,
+the double-slash `/<plugin>/<cmd>` form). The rewrite is **word-boundary-aware
+and longest-first** so `/scan-releases` is handled before `/scan`,
+`/evolve-walk` before `/walk`, and the router `/<plugin>` is never corrupted.
+
+**What the script deliberately does NOT touch** — verify by eye:
+
+- **Common-noun prose.** A skill called `guide` is a single token; its plain-word
+  uses ("Sherpa is the guide who leads") are left alone. Only the skill IDENTITY
+  (backtick-wrapped, "guide skill", path/method-call forms) is namespaced.
+- **Sibling-plugin refs.** `vibe-cartographer:scope`, and Cart's own
+  `/scope` / `/prd` / `/spec` / `/build`, are NOT this port's commands — they stay
+  bare. The slash-rewrite only touches names in this port's rename map.
+- **Log/enum data values.** A `command: "discover"` field passed to the session
+  logger is a data value, not a slash-ref — unchanged.
+
+**Idempotent.** A name already carrying the `<plugin>-` prefix is left as-is, so
+re-running never doubles the prefix (`vibe-walk-vibe-walk-…`).
+
+**Verify (drive to zero):**
+
+```
+# every bare command slash-ref should now be prefixed — only /<plugin> is bare
+grep -rPaon '(?<![\w-])/(bootstrap|discover|walk|vitals|feature-add|competitive|ux-polish|bug-bash|radar|spy|scan-releases|rate|ship|upgrade|evolve-[a-z]+)\b' \
+  .agent AGENTS.md README.md | grep -vE '/<plugin>-'    # expect: nothing
+grep -rn '<plugin>-<plugin>-' .                          # expect: nothing (no doubles)
+```
+
+Also confirm: every `.agent/skills/<X>/` path and `../<X>/SKILL.md` link resolves
+to an on-disk dir, and each skill's frontmatter `name:` equals its dir name. If a
+workflow self-tests (e.g. vibe-walk's `/vibe-walk-vitals`), its **expected-file
+list** and any `## /<cmd>` section-header checks must be updated to the
+namespaced names too — those bare code-fence basenames are intentionally not
+auto-rewritten (to protect prose), so they're a hand-finish.
 
 ---
 
 ## 7. H1 titles & inline-trigger cleanup
 
-The script repoints frontmatter triggers and body slash names, but check:
-- **H1 headings** — a source `# /vibe-iterate:rate &lt;idea&gt;` should read
-  `# /rate <idea>` (drop the namespace, de-entity the `&lt;`/`&gt;`).
+The script repoints frontmatter triggers and body slash names (including the
+namespacing rewrite in step 6.5), but check:
+- **H1 headings** — a source `# /vibe-iterate:rate &lt;idea&gt;` becomes
+  `# /vibe-iterate-rate <idea>` (namespaced slash, de-entity the `&lt;`/`&gt;`).
 - Any HTML-entity-escaped angle brackets in argument hints.
 
 ---
@@ -166,10 +230,12 @@ actual feature set and document the answer in the port's PORTING.md/README:
 2. **`--silent` sub-workflow calls** — does it call sidecars expecting structured
    data back? Keep the `--silent` instruction as agent guidance; flag that
    Antigravity's compose semantics are unverified, or inline the sidecar.
-3. **Workflow name collisions** — Antigravity slash names are flat (no plugin
-   namespace). Are this plugin's workflow names generic enough to collide with
-   another installed port? Decide a namespacing convention before installing
-   multiple ports side-by-side.
+3. **Workflow name collisions** — RESOLVED. Antigravity slash names are flat
+   (no plugin namespace), so bare `/bootstrap`, `/discover`, `/radar` collide
+   across installed ports and are unidentifiable in the flat slash list. The
+   plugin-prefix namespacing convention (step 6.5) is the standing answer:
+   `port.py` now applies it automatically. Confirm the rename map in
+   `report.namespacing` looks right for this plugin; no per-port decision left.
 4. **`plugin_version` discovery** — `.agent/agent.json` holds the mirrored
    version for the loggers' audit field. Confirm whether Antigravity reads it.
 5. **Claude-only hooks** — does the source have a `hooks/` dir

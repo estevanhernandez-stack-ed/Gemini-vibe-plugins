@@ -4,7 +4,7 @@ description: "Run when the user says `/vibe-walk` (bare, no subcommand). Reads p
 
 # /vibe-walk — bare router
 
-Read `AGENTS.md` + the `guide` skill (`.agent/skills/guide/SKILL.md`) for shared agent behavior (Sherpa persona, posture, conventions), then follow this command.
+Read `AGENTS.md` + the `vibe-walk-guide` skill (`.agent/skills/vibe-walk-guide/SKILL.md`) for shared agent behavior (Sherpa persona, posture, conventions), then follow this command.
 
 ## What this command does
 
@@ -31,9 +31,9 @@ The agent's job:
 | State | Recommend |
 |---|---|
 | `.vibe-walk/config.json` absent | First-run path → invoke **bootstrap** |
-| Config present, no `.vibe-walk/discovery.json` | **/discover** — read the app's surfaces and get the verdict |
-| Discovery present, verdict = `don't-build` or `cheaper-first` | Surface the verdict + its rationale. Do NOT recommend building. Offer `/discover --refresh` if the app has changed. |
-| Discovery present, verdict = `build` | **/walk** — run the interview gates and build the tour |
+| Config present, no `.vibe-walk/discovery.json` | **/vibe-walk-discover** — read the app's surfaces and get the verdict |
+| Discovery present, verdict = `don't-build` or `cheaper-first` | Surface the verdict + its rationale. Do NOT recommend building. Offer `/vibe-walk-discover --refresh` if the app has changed. |
+| Discovery present, verdict = `build` | **/vibe-walk-walk** — run the interview gates and build the tour |
 
 ## First-run path (graceful)
 
@@ -43,7 +43,7 @@ If `.vibe-walk/config.json` is absent, say one short line and hand off to bootst
 Fresh repo — no config yet. Let me get the lay of the land first.
 ```
 
-Then invoke the **bootstrap** SKILL (`/bootstrap`). After bootstrap returns, do not auto-recommend — bootstrap's output prompts the user to re-run `/vibe-walk`.
+Then invoke the **bootstrap** SKILL (`/vibe-walk-bootstrap`). After bootstrap returns, do not auto-recommend — bootstrap's output prompts the user to re-run `/vibe-walk`.
 
 ## Output shape (when config exists)
 
@@ -63,6 +63,6 @@ Wait for the user. Do not invoke any subcommand on your own.
 
 ## Cross-references
 
-- Bootstrap: `/bootstrap`
-- Guide: `AGENTS.md` + the `guide` skill (`.agent/skills/guide/SKILL.md`)
+- Bootstrap: `/vibe-walk-bootstrap`
+- Guide: `AGENTS.md` + the `vibe-walk-guide` skill (`.agent/skills/vibe-walk-guide/SKILL.md`)
 - (Phase skills `discover` and `walk` are added in later milestones.)

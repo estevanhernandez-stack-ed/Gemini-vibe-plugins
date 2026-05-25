@@ -4,7 +4,7 @@ description: "Run when the user types /vibe-iterate (bare, no subcommand). Reads
 
 # /vibe-iterate — bare router
 
-Ptolemy persona, posture, knowledge sources, and Cart-detection are always-on via `AGENTS.md`. Reference detail (Atlas conventions, schemas, friction map) is in the `guide` skill (`.agent/skills/guide/SKILL.md`) — load it when you need to validate a write. Then follow this workflow.
+Ptolemy persona, posture, knowledge sources, and Cart-detection are always-on via `AGENTS.md`. Reference detail (Atlas conventions, schemas, friction map) is in the `vibe-iterate-guide` skill (`.agent/skills/vibe-iterate-guide/SKILL.md`) — load it when you need to validate a write. Then follow this workflow.
 
 ## What this workflow does
 
@@ -32,7 +32,7 @@ If `.vibe-iterate/config.json` is **absent**, the project hasn't been set up. Pt
 Fresh repo — no config yet. Let me get the lay of the land before recommending a mode.
 ```
 
-Then immediately run the **`/bootstrap`** workflow (`.agent/workflows/bootstrap.md`). Bootstrap handles app-type identification, the brief interview, and writing `.vibe-iterate/config.json`. After bootstrap returns, the bare router does NOT auto-recommend a mode — bootstrap's output already prompts the user to re-run `/vibe-iterate` for a recommendation. This is intentional: the user makes the deliberate choice.
+Then immediately run the **`/vibe-iterate-bootstrap`** workflow (`.agent/workflows/vibe-iterate-bootstrap.md`). Bootstrap handles app-type identification, the brief interview, and writing `.vibe-iterate/config.json`. After bootstrap returns, the bare router does NOT auto-recommend a mode — bootstrap's output already prompts the user to re-run `/vibe-iterate` for a recommendation. This is intentional: the user makes the deliberate choice.
 
 **Don't:**
 - Don't say "First-time vibe-iterate run on this project. I'll need to infer your category and competitors before any banner mode can run productively." That's a lecture.
@@ -49,7 +49,7 @@ Then immediately run the **`/bootstrap`** workflow (`.agent/workflows/bootstrap.
 If `.vibe-iterate/config.json` exists but `last_inferred_at` is **>30 days old**, surface a one-line nudge AT THE END of the recommendation (not the beginning — don't gate the recommendation on it):
 
 ```
-(Config last refreshed N days ago — consider /bootstrap when you have a sec.)
+(Config last refreshed N days ago — consider /vibe-iterate-bootstrap when you have a sec.)
 ```
 
 Don't block. Don't re-bootstrap automatically. The recommendation is the headline; the refresh nudge is a sidebar.
@@ -58,7 +58,7 @@ Don't block. Don't re-bootstrap automatically. The recommendation is the headlin
 
 1. **Atlas (`.vibe-iterate/atlas.jsonl`).** If absent or empty, no iterations have shipped yet — note "no shipped iterations yet."
 2. **Config (`.vibe-iterate/config.json`).** Read `category`, `competitors`, `framework_pins`, `last_inferred_at`.
-3. **Radar cache (`.vibe-iterate/radar.cache.json`).** If absent or `refreshed_at` >14 days old, mark stale; surface a follow-up nudge: *"Run `/radar` for a fresh signal scan."*
+3. **Radar cache (`.vibe-iterate/radar.cache.json`).** If absent or `refreshed_at` >14 days old, mark stale; surface a follow-up nudge: *"Run `/vibe-iterate-radar` for a fresh signal scan."*
 4. **Recent commits.** Last 10 on the current branch via `git log --oneline -10`.
 5. **Branch state.** On `main`/`master`? A feature branch? Uncommitted changes (`git status --porcelain`)?
 6. **`feedback.md` presence.** If present at project root, surface as input for a Bug-bash candidate. Read first 30 lines for context (not the whole file — that's bug-bash's job).
@@ -113,7 +113,7 @@ Skip the announcement on the first-run path (bootstrap does its own announcement
 
 ## Cross-references
 
-- Bootstrap: `/bootstrap` (`.agent/workflows/bootstrap.md`) — invoked on first run
-- Banner modes: `/feature-add`, `/competitive`, `/ux-polish`, `/bug-bash`
-- Sidecars: `/radar`, `/rate`, `/spy`, `/scan-releases`, `/ship`, `/upgrade`
-- Rules + reference: `AGENTS.md`, `.agent/skills/guide/SKILL.md`
+- Bootstrap: `/vibe-iterate-bootstrap` (`.agent/workflows/vibe-iterate-bootstrap.md`) — invoked on first run
+- Banner modes: `/vibe-iterate-feature-add`, `/vibe-iterate-competitive`, `/vibe-iterate-ux-polish`, `/vibe-iterate-bug-bash`
+- Sidecars: `/vibe-iterate-radar`, `/vibe-iterate-rate`, `/vibe-iterate-spy`, `/vibe-iterate-scan-releases`, `/vibe-iterate-ship`, `/vibe-iterate-upgrade`
+- Rules + reference: `AGENTS.md`, `.agent/skills/vibe-iterate-guide/SKILL.md`

@@ -1,6 +1,6 @@
 # vibe-iterate — agent rules (Antigravity port)
 
-> Always-on context for the vibe-iterate workflows. This is the Antigravity-rules equivalent of the Claude Code `guide` SKILL's persona + posture + conventions layer. Every `/vibe-iterate*` workflow inherits what's below. Deep reference detail (Atlas conventions, friction triggers, schemas) lives in the `guide` skill at `.agent/skills/guide/SKILL.md`.
+> Always-on context for the vibe-iterate workflows. This is the Antigravity-rules equivalent of the Claude Code `vibe-iterate-guide` SKILL's persona + posture + conventions layer. Every `/vibe-iterate*` workflow inherits what's below. Deep reference detail (Atlas conventions, friction triggers, schemas) lives in the `vibe-iterate-guide` skill at `.agent/skills/vibe-iterate-guide/SKILL.md`.
 
 ## Persona — Ptolemy
 
@@ -69,9 +69,9 @@ Don't hard-fail when Cart is missing. Don't auto-install Cart. Don't delegate ev
 
 ## State files (per host project, under `.vibe-iterate/`)
 
-- `atlas.jsonl` — append-only ledger of every iteration considered/shipped/rejected. Schema in the guide skill.
-- `config.json` — competitors, category, framework_pins. Schema in the guide skill.
-- `radar.cache.json` — weekly scheduled-refresh output. Schema in the guide skill.
+- `atlas.jsonl` — append-only ledger of every iteration considered/shipped/rejected. Schema in the vibe-iterate-guide skill.
+- `config.json` — competitors, category, framework_pins. Schema in the vibe-iterate-guide skill.
+- `radar.cache.json` — weekly scheduled-refresh output. Schema in the vibe-iterate-guide skill.
 - `feedback.md` — user-maintained internal-signal source (bug-bash reads this; freeform markdown, no schema).
 
 If a workflow writes any of these, validate against the schema first. Malformed writes corrupt the ledger and break downstream consumers.
@@ -79,16 +79,16 @@ If a workflow writes any of these, validate against the schema first. Malformed 
 ## Self-evolving framework — session + friction logging
 
 Two internal skills (in `.agent/skills/`) that every banner mode and `bootstrap` invokes:
-- **session-logger** — sentinel + terminal session entries, paired by sessionUUID.
-- **friction-logger** — append-only friction entries at the trigger points in `guide/references/friction-triggers.md`.
+- **vibe-iterate-session-logger** — sentinel + terminal session entries, paired by sessionUUID.
+- **vibe-iterate-friction-logger** — append-only friction entries at the trigger points in `guide/references/friction-triggers.md`.
 
-The `/evolve-iterate` workflow reads both logs and proposes plugin improvements. Sidecars (`/radar`, `/spy`, `/scan-releases`, `/rate`) do NOT log — they're read-only and short-lived.
+The `/vibe-iterate-evolve` workflow reads both logs and proposes plugin improvements. Sidecars (`/vibe-iterate-radar`, `/vibe-iterate-spy`, `/vibe-iterate-scan-releases`, `/vibe-iterate-rate`) do NOT log — they're read-only and short-lived.
 
 **Log location (Antigravity repoint):** `~/.gemini/antigravity/data/vibe-iterate/` — i.e. session files at `~/.gemini/antigravity/data/vibe-iterate/sessions/<YYYY-MM-DD>.jsonl` and friction at `~/.gemini/antigravity/data/vibe-iterate/friction.jsonl`. (Claude Code original used `~/.claude/plugins/data/vibe-iterate/`.)
 
 ## Scheduling note
 
-The weekly radar refresh was powered by the Claude Code `schedule` plugin's cron. Antigravity's equivalent is its own cron/scheduled-task mechanism — see `PORTING.md` open questions. Until a scheduled refresh is wired, `/radar` supports a manual on-demand refresh (`--refresh`), and banner modes degrade gracefully on a missing/stale cache. Radar refresh is the only place `schedule` is load-bearing; everything else works without it.
+The weekly radar refresh was powered by the Claude Code `schedule` plugin's cron. Antigravity's equivalent is its own cron/scheduled-task mechanism — see `PORTING.md` open questions. Until a scheduled refresh is wired, `/vibe-iterate-radar` supports a manual on-demand refresh (`--refresh`), and banner modes degrade gracefully on a missing/stale cache. Radar refresh is the only place `schedule` is load-bearing; everything else works without it.
 
 ## Hard rules (do not violate without explicit user opt-in)
 

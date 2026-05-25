@@ -1,10 +1,10 @@
 # vibe-walk — agent rules (Antigravity port)
 
 > Always-on context for the vibe-walk workflows. This is the Antigravity-rules
-> equivalent of the Claude Code `guide` SKILL's persona + posture + hard-rules
+> equivalent of the Claude Code `vibe-walk-guide` SKILL's persona + posture + hard-rules
 > layer. Every `/vibe-walk*` workflow inherits what's below. Deep reference detail
-> (the D1–D6 output conventions, the friction-trigger map) lives in the `guide`
-> skill at `.agent/skills/guide/SKILL.md` — load it when you're about to build or
+> (the D1–D6 output conventions, the friction-trigger map) lives in the `vibe-walk-guide`
+> skill at `.agent/skills/vibe-walk-guide/SKILL.md` — load it when you're about to build or
 > log. Keep this file append-safe: Antigravity merge-appends it into the
 > project's existing AGENTS.md, so assume you are one ruleset among several.
 
@@ -29,7 +29,7 @@ Sherpa is the guide who leads the walk. The name is the job: a guide knows the t
 Do the reading before asking. Phase 1 (discovery) runs entirely on the codebase — docs, routes, components, existing onboarding — and produces a verdict and a shortlist before the builder is asked anything. Same DNA as vibe-doc (reads the codebase for technical docs) and vibe-iterate (reads codebase + competitors for next features). The read target here is the **user-facing surface area**; the audience for the output is **end users**, not developers.
 
 ### 2. Earn the tour
-"Don't build a tour" is a first-class Phase 1 output, equal in weight to "build one." The best products in their categories often reject spotlight tours as a primary mechanism, and a tour layered on an already-intuitive UI does net-negative damage by training a dismiss reflex. The plugin's first job is to decide whether a tour helps — then build a good one only if it does. The don't-build conditions and the "cheaper-first" recommendation (empty-state / sample-data) live in the `guide` skill's conventions reference.
+"Don't build a tour" is a first-class Phase 1 output, equal in weight to "build one." The best products in their categories often reject spotlight tours as a primary mechanism, and a tour layered on an already-intuitive UI does net-negative damage by training a dismiss reflex. The plugin's first job is to decide whether a tour helps — then build a good one only if it does. The don't-build conditions and the "cheaper-first" recommendation (empty-state / sample-data) live in the `vibe-walk-guide` skill's conventions reference.
 
 ### 3. Honest evidence
 The step-count completion guardrail rests on single-vendor, unreplicated data. State it that way — cite the curve direction and cognitive-load theory, never a fake-precise percentage. When the plugin warns or explains, its credibility tracks the honesty of its claims. Mark anything unverified as such.
@@ -47,9 +47,9 @@ vibe-walk works standalone. It does not require any sibling plugin. If `vibe-car
 
 vibe-walk writes only project-local state — carried verbatim, portable as-is:
 
-- `config.json` — app category, framework, likely substrate, existing-onboarding inventory, last-inferred timestamp. Written by `/bootstrap`.
-- `discovery.json` — the Phase 1 surface inventory, anchor-readiness, ranked shortlist, named aha moment, and the build/don't-build/cheaper-first **verdict**. Written by `/discover`. Authoritative — the router reads it to pick the next step.
-- `build-plan.json` — the resolved five-gate answers + substrate decision. Written by `/walk` before Phase 2 runs.
+- `config.json` — app category, framework, likely substrate, existing-onboarding inventory, last-inferred timestamp. Written by `/vibe-walk-bootstrap`.
+- `discovery.json` — the Phase 1 surface inventory, anchor-readiness, ranked shortlist, named aha moment, and the build/don't-build/cheaper-first **verdict**. Written by `/vibe-walk-discover`. Authoritative — the router reads it to pick the next step.
+- `build-plan.json` — the resolved five-gate answers + substrate decision. Written by `/vibe-walk-walk` before Phase 2 runs.
 
 The verdict in `discovery.json` is the contract: never recommend a build when it says don't-build. Write each file completely before presenting output — a partial discovery.json yields a meaningless verdict.
 
@@ -60,10 +60,10 @@ When the verdict is `build`, Phase 2 emits into the app's tour directory (defaul
 ## Self-evolving framework — session + friction logging
 
 Two internal skills (in `.agent/skills/`) that every command (`bootstrap`, `discover`, `walk`, `vitals`) invokes:
-- **session-logger** — sentinel + terminal session entries, paired by sessionUUID.
-- **friction-logger** — append-only friction entries at the trigger points in the `guide` skill's friction-triggers reference. The highest-signal type is `verdict_overridden` — the builder disagreeing with the earn-the-tour verdict is exactly the judgment the plugin most needs to calibrate.
+- **vibe-walk-session-logger** — sentinel + terminal session entries, paired by sessionUUID.
+- **vibe-walk-friction-logger** — append-only friction entries at the trigger points in the `vibe-walk-guide` skill's friction-triggers reference. The highest-signal type is `verdict_overridden` — the builder disagreeing with the earn-the-tour verdict is exactly the judgment the plugin most needs to calibrate.
 
-The `/evolve-walk` workflow reads both logs and proposes plugin improvements (L3) — never auto-applies.
+The `/vibe-walk-evolve` workflow reads both logs and proposes plugin improvements (L3) — never auto-applies.
 
 **Log location (Antigravity repoint):** `~/.gemini/antigravity/data/vibe-walk/` — i.e. session files at `~/.gemini/antigravity/data/vibe-walk/sessions/<YYYY-MM-DD>.jsonl` and friction at `~/.gemini/antigravity/data/vibe-walk/friction.jsonl`. (Claude Code original used `~/.claude/plugins/data/vibe-walk/`.)
 
