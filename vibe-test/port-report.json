@@ -1,0 +1,271 @@
+{
+  "plugin_name": "vibe-test",
+  "source": "C:\\Users\\estev\\Projects\\vibe-test-readme-work\\packages\\vibe-test",
+  "output": "C:\\Users\\estev\\Projects\\vibe-plugins-ports\\vibe-test",
+  "summary": {
+    "workflows": 10,
+    "skills": 5,
+    "edge_classifications": 1,
+    "files_transformed": 20,
+    "files_copied_verbatim": 2,
+    "guide_intro_lines_to_synthesize": 16
+  },
+  "commands_merged": {
+    "commands_found": [
+      "audit",
+      "coverage",
+      "evolve",
+      "fix",
+      "gate",
+      "generate",
+      "posture",
+      "vibe-test"
+    ],
+    "merged_with_skill": [
+      "audit",
+      "coverage",
+      "evolve",
+      "fix",
+      "gate",
+      "generate",
+      "posture"
+    ],
+    "command_only_workflows": [
+      "vibe-test"
+    ],
+    "note": "Each command + same-named skill merged into ONE workflow (command -> slash + description, skill body -> workflow body, standalone skill dropped). Command-only commands became workflows from the command body. See PORT-RUNNER.md step 2b."
+  },
+  "namespacing": {
+    "convention": "router=/<plugin>; other workflows=/<plugin>-<cmd>; evolve-*=/<plugin>-evolve; skills=<plugin>-<skill>",
+    "workflow_renames": {
+      "/audit": "/vibe-test-audit",
+      "/coverage": "/vibe-test-coverage",
+      "/evolve": "/vibe-test-evolve",
+      "/fix": "/vibe-test-fix",
+      "/gate": "/vibe-test-gate",
+      "/generate": "/vibe-test-generate",
+      "/posture": "/vibe-test-posture",
+      "/router": "/vibe-test-router",
+      "/vibe-test": "/vibe-test",
+      "/vitals": "/vibe-test-vitals"
+    },
+    "skill_renames": {
+      "decay": "vibe-test-decay",
+      "friction-logger": "vibe-test-friction-logger",
+      "guide": "vibe-test-guide",
+      "session-logger": "vibe-test-session-logger",
+      "wins-logger": "vibe-test-wins-logger"
+    }
+  },
+  "workflows": [
+    {
+      "name": "vibe-test-audit",
+      "slash": "/vibe-test-audit",
+      "source_name": "audit",
+      "reason": "command + parallel skill merged into one workflow (/audit); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-test-coverage",
+      "slash": "/vibe-test-coverage",
+      "source_name": "coverage",
+      "reason": "command + parallel skill merged into one workflow (/coverage); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-test-evolve",
+      "slash": "/vibe-test-evolve",
+      "source_name": "evolve",
+      "reason": "command + parallel skill merged into one workflow (/evolve); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-test-fix",
+      "slash": "/vibe-test-fix",
+      "source_name": "fix",
+      "reason": "command + parallel skill merged into one workflow (/fix); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-test-gate",
+      "slash": "/vibe-test-gate",
+      "source_name": "gate",
+      "reason": "command + parallel skill merged into one workflow (/gate); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-test-generate",
+      "slash": "/vibe-test-generate",
+      "source_name": "generate",
+      "reason": "command + parallel skill merged into one workflow (/generate); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-test-posture",
+      "slash": "/vibe-test-posture",
+      "source_name": "posture",
+      "reason": "command + parallel skill merged into one workflow (/posture); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-test",
+      "slash": "/vibe-test",
+      "source_name": "vibe-test",
+      "reason": "command-only (no parallel skill) \u2014 workflow from commands/vibe-test.md",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": true
+    },
+    {
+      "name": "vibe-test-router",
+      "slash": "/vibe-test-router",
+      "source_name": "router",
+      "reason": "user-invocable slash trigger (/vibe-test)",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": false
+    },
+    {
+      "name": "vibe-test-vitals",
+      "slash": "/vibe-test-vitals",
+      "source_name": "vitals",
+      "reason": "real slash trigger (/vibe-test:evolve) despite 'internal' self-label \u2014 trust the trigger (cookbook bootstrap lesson)",
+      "edge_flag": true,
+      "merged_from_command": false,
+      "command_only": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "vibe-test-decay",
+      "source_name": "decay",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "vibe-test-friction-logger",
+      "source_name": "friction-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "vibe-test-guide",
+      "source_name": "guide",
+      "reason": "shared-behavior reference, never user-invoked",
+      "edge_flag": false,
+      "carried_verbatim": true,
+      "guide_split": true
+    },
+    {
+      "name": "vibe-test-session-logger",
+      "source_name": "session-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "vibe-test-wins-logger",
+      "source_name": "wins-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    }
+  ],
+  "edge_classifications": [
+    {
+      "name": "vitals",
+      "classified_as": "workflow",
+      "reason": "real slash trigger (/vibe-test:evolve) despite 'internal' self-label \u2014 trust the trigger (cookbook bootstrap lesson)",
+      "note": "VERIFY in finishing pass \u2014 self-label vs trigger disagreed, or no strong signal."
+    }
+  ],
+  "repoints_applied": {
+    "data-path": 19,
+    "builder-profile": 12,
+    "claude-home-generic": 4,
+    "plugin-json": 3,
+    "plugin-namespaced-slash": 144,
+    "sidecar-bare": 2,
+    "command-start-end": 5
+  },
+  "unknown_xref_targets": [],
+  "leftover_grep_hits": {
+    "namespaced-slash": [
+      ".agent\\skills\\vibe-test-guide\\references\\plays-well-with.md: \u2026/vibe-doc:generate\u2026",
+      ".agent\\workflows\\vibe-test-audit.md: \u2026/end:X\u2026",
+      ".agent\\workflows\\vibe-test-generate.md: \u2026/vibe-doc:generate\u2026"
+    ],
+    "sibling-skill-link": [
+      ".agent\\workflows\\vibe-test-audit.md: \u2026../vibe-test-guide/SKILL.md\u2026",
+      ".agent\\workflows\\vibe-test-audit.md: \u2026../vibe-test-guide/SKILL.md\u2026",
+      ".agent\\workflows\\vibe-test-audit.md: \u2026../vibe-test-guide/SKILL.md\u2026",
+      ".agent\\workflows\\vibe-test-coverage.md: \u2026../vibe-test-guide/SKILL.md\u2026",
+      ".agent\\workflows\\vibe-test-coverage.md: \u2026../vibe-test-guide/SKILL.md\u2026",
+      ".agent\\workflows\\vibe-test-fix.md: \u2026../vibe-test-guide/SKILL.md\u2026",
+      ".agent\\workflows\\vibe-test-fix.md: \u2026../vibe-test-guide/SKILL.md\u2026",
+      ".agent\\workflows\\vibe-test-gate.md: \u2026../vibe-test-guide/SKILL.md\u2026"
+    ],
+    "claude-home": [
+      "AGENTS.md: \u2026~/.claude\u2026"
+    ]
+  },
+  "files_transformed": [
+    ".agent\\workflows\\vibe-test-audit.md",
+    ".agent\\workflows\\vibe-test-coverage.md",
+    ".agent\\workflows\\vibe-test-evolve.md",
+    ".agent\\workflows\\vibe-test-fix.md",
+    ".agent\\workflows\\vibe-test-gate.md",
+    ".agent\\workflows\\vibe-test-generate.md",
+    ".agent\\workflows\\vibe-test-posture.md",
+    ".agent\\workflows\\vibe-test.md",
+    ".agent\\skills\\vibe-test-decay\\SKILL.md",
+    ".agent\\skills\\vibe-test-friction-logger\\SKILL.md",
+    ".agent\\skills\\vibe-test-guide\\SKILL.md",
+    ".agent\\skills\\vibe-test-guide\\references\\data-contracts.md",
+    ".agent\\skills\\vibe-test-guide\\references\\friction-triggers.md",
+    ".agent\\skills\\vibe-test-guide\\references\\plays-well-with.md",
+    ".agent\\workflows\\vibe-test-router.md",
+    ".agent\\skills\\vibe-test-session-logger\\SKILL.md",
+    ".agent\\workflows\\vibe-test-vitals.md",
+    ".agent\\skills\\vibe-test-wins-logger\\SKILL.md",
+    ".agent/agent.json",
+    "AGENTS.md (skeleton \u2014 finishing pass)"
+  ],
+  "files_copied_verbatim": [
+    ".agent\\skills\\vibe-test-guide\\schemas/* (verbatim)",
+    ".agent\\skills\\vibe-test-guide\\references\\.gitkeep (verbatim)"
+  ],
+  "finishing_pass_todos": [
+    "AGENTS.md: synthesize the always-on layer as prose (persona, posture, knowledge sources, cross-plugin detection, hard rules, voice). The skeleton has TODO markers + source-doc hints.",
+    "Guide split: decide which guide reference docs are always-on (collapse into AGENTS.md prose, then DELETE from the guide skill so there's one source of truth) vs situational (keep as files in the guide skill). Rewrite the guide SKILL.md to a thin index. Schemas + trigger maps stay skill-side; personas + postures go AGENTS-side.",
+    "Namespacing applied: every non-router workflow is /<plugin>-<cmd>, evolve-* collapsed to /<plugin>-evolve, skills are <plugin>-<skill> (dir + frontmatter name). See report.namespacing for the rename map. Spot-check that no bare command slash-ref survived (only the router /<plugin> is bare) and that prose using a skill's plain word (e.g. the common noun 'guide') reads correctly \u2014 the ref-rewrite only namespaces the skill IDENTITY (backtick/'X skill'/path/method-call), not prose.",
+    "Command merge (thin-command-wrapper pattern): commands/ was detected. Merged with a parallel skill -> workflow: ['audit', 'coverage', 'evolve', 'fix', 'gate', 'generate', 'posture']. Command-only -> workflow: ['vibe-test']. VERIFY each merged workflow's `description` (from the command) reads clean and its body (from the skill) carries the full implementation; confirm the standalone skill dirs for the merged ones were dropped (port.py emits no skill for them). For command-only workflows, the body is the command body \u2014 flesh out any 'read the SKILL' delegation that no longer has a skill to point at.",
+    "Guide-intro lines: 16 workflow/skill bodies had a '[../guide/SKILL.md]' intro line auto-rewritten to a generic pointer. Rewrite each to the per-file prose form (e.g. 'Persona/posture/Cart-detection are always-on via AGENTS.md\u2026').",
+    "Edge classification: 'vitals' -> workflow (real slash trigger (/vibe-test:evolve) despite 'internal' self-label \u2014 trust the trigger (cookbook bootstrap lesson)). Confirm.",
+    "Self-edit targets in evolve: the proposal shapes name files to edit ('plugins/<plugin>/skills/<cmd>/SKILL.md'). Repoint each to its real port target \u2014 '.agent/workflows/<cmd>.md' for ported workflows, '.agent/skills/<name>/...' for ported skills. This is NOT a blind string replace (a skill that became a workflow flips the target dir).",
+    "Folded-reference back-pointers: any body that said 'per ../guide/references/<doc>.md' for a doc that got collapsed into AGENTS.md must point at 'AGENTS.md \u00a7 <Section>' instead.",
+    "H1 titles / inline triggers: the script repoints frontmatter triggers and body slash names, but H1 headings and HTML-entity forms (e.g. '/plugin:rate &lt;idea&gt;') may need a hand pass for clean '/rate <idea>' form.",
+    "Open questions 1-5 (PORTING.md): re-check against THIS plugin's feature set \u2014 does it schedule (cron)? call sidecars silently? have hooks/? use ~/.claude/profiles/builder.json? namespace-collide on workflow names? Document the answers; do NOT invent Antigravity primitives.",
+    "Leftover grep hits remain (see leftover_grep_hits) \u2014 review each; some are legitimate (the AGENTS.md repoint note mentions the old path on purpose), some are misses to clean up."
+  ]
+}

@@ -415,3 +415,88 @@ So Antigravity's unverified workflow-compose semantics **do not bite this port**
 3. **Open-question #2 needs the two-architecture distinction.** PORT-RUNNER step 8 #2 frames `--silent` sub-workflow calls as the thing to check, which presumes the iterate architecture (in-turn silent skill calls). sec's composition is state-file-mediated (writer writes findings.jsonl, readers read it) — a fundamentally different, **already-portable** pattern with no Antigravity-compose dependency. **Recommend:** rewrite step 8 #2 to distinguish: "(a) genuine silent sub-workflow calls (grep `--silent`) — the unverified case; (b) state-file handoff (one workflow writes a cached state file, others read it) — portable as-is, no compose-semantics dependency. Determine which architecture the plugin uses before flagging #2 as live."
 
 Otherwise PORT-RUNNER.md carried the rest cleanly — the commands+skills merge (step 2b, now mechanical), the namespacing verification, the H1/inline-trigger check, the leftover-grep, and the open-questions re-check all mapped to existing steps. The commands+skills merge being mechanical is the proof that the vibe-doc port.py fix generalizes.
+
+## vibe-test@0.2.3 (ported 2026-05-24)
+
+**Shape:** the family's **richest commands+skills plugin** — 8 commands (`audit`, `coverage`, `evolve`, `fix`, `gate`, `generate`, `posture`, `vibe-test`) + 14 skills (`audit`, `coverage`, `decay`, `evolve`, `fix`, `friction-logger`, `gate`, `generate`, `guide`, `posture`, `router`, `session-logger`, `vitals`, `wins-logger`) → **8 workflows + 6 skills** + AGENTS.md + agent.json. `port.py` did the seven clean command+skill merges mechanically (proving the step-2b fix generalizes again), but made **two new classification errors** the finishing pass corrected — both genuinely new edges, neither covered by the prior cookbook entries.
+
+| Source surface | Source kind | Port target | Why |
+|---|---|---|---|
+| `audit`/`coverage`/`fix`/`gate`/`generate`/`posture` (cmd + skill) | thin wrapper + impl skill | **workflows** `/vibe-test-<cmd>` | step-2b merge — mechanical |
+| `evolve` (cmd + skill) | thin wrapper + impl skill | **workflow** `/vibe-test-evolve` | step-2b merge + evolve-collapse — mechanical |
+| `vibe-test` command + `router` **skill** | cross-named pair | **workflow** `/vibe-test` (router, **merged**) | **Error 1 — see below** |
+| `vitals` | "Internal SKILL — not a slash command in v0.2" | **skill** `.agent/skills/vibe-test-vitals/` | **Error 2 — see below** |
+| `decay`, `session-logger`, `friction-logger`, `wins-logger` | internal | **skills** | loaded, never typed |
+| `guide` | shared-behavior | **split** → AGENTS.md + skill `vibe-test-guide` | guide split |
+
+### Error 1 — cross-named command+skill pair → merged router (NEW lesson, headline)
+
+`port.py`'s step-2b merge keys on **same-name** (command `scan` + skill `scan`). vibe-test's router is a **cross-named pair**: the `vibe-test` **command** (`commands/vibe-test.md`) and the `router` **skill** (`skills/router/SKILL.md`) are the *same* bare entry point — `router`'s description is literally *"used when the user says `/vibe-test` (bare)… the entry point."* Different names, so the same-name merge missed it: `port.py` emitted **two** workflows — `/vibe-test` (a thin command-only stub that still said "read `skills/router/SKILL.md`") AND `/vibe-test-router` (the full router body). Two slash commands for one front door.
+
+**Fix:** fold the `router` skill's implementation (greet / first-run-detect / list-subcommands / decay-at-start / Pattern #15 version-resolution / Pattern #16 prereq-shaping) into the `/vibe-test` workflow body; the `vibe-test` command supplies the clean slash identity + `description`. **Delete `vibe-test-router.md`.** End state: one `/vibe-test` router workflow whose body is the router skill's, frontmatter is the command's.
+
+**Lesson (new):** the thin-command-wrapper merge must also catch the **cross-named pair** — a command and a skill that are the *same entry point under different names* (here the eponymous command `vibe-test` + the conventionally-named `router` skill). The signal isn't the name match; it's that the skill's description names the **same slash trigger** the command owns. `port.py`'s same-name merge is necessary but not sufficient.
+
+**Recommended `port.py` guard:** before the same-name merge, scan each unmatched skill's description for a slash-trigger phrase (`` `/<plugin>` `` bare, or `` `/<cmd>` ``). If a skill's declared trigger equals a command's slash (especially the bare `/<plugin>`), merge that skill into that command's workflow even when the names differ. The eponymous-router case (`vibe-test` cmd + `router` skill → `/vibe-test`) is the canonical instance; the resolved target is the bare router `<plugin>.md`, never `/<plugin>-router`.
+
+### Error 2 — slash-mention false-positive → vitals demoted to skill (NEW lesson)
+
+`port.py` promoted `vitals` to a `/vibe-test-vitals` **workflow** (flagged it as the bootstrap-style edge: "real slash trigger `/vibe-test:evolve` despite 'internal' self-label — trust the trigger"). **Wrong inversion of the bootstrap lesson.** The bootstrap edge is: a skill self-labels "internal" but its description lists *its own* `/<plugin>:bootstrap` trigger → it IS user-invocable. vitals is the opposite: it self-labels **"Internal SKILL — not a slash command in v0.2 — invoked by /vibe-test:evolve as a read-only pre-flight,"** and the `/vibe-test:evolve` it mentions is the **caller**, not its own trigger. The classifier false-matched the *mention* of a sibling's slash inside vitals' description as if it were vitals' own entry point.
+
+**Fix:** demote to internal skill `.agent/skills/vibe-test-vitals/SKILL.md` (`name: vibe-test-vitals`). `/vibe-test-evolve` invokes it as a read-only pre-flight via skill-load (the source referenced it as `[../vitals/SKILL.md]`, not a slash — confirmed against source). Re-modeled vitals' seven-check Runtime Paths table for the `.agent/` layout (it self-tests the directory shape, like vibe-walk's vitals — the self-test is its own port surface). A user-facing `/vibe-test-vitals` workflow is slated for v0.3; the port keeps the forward-references (`Future /vibe-test-vitals`, the documented-empty friction-trigger row) intact but does NOT ship a v0.2 workflow.
+
+**Lesson (new):** a skill that explicitly self-labels **"Internal — not a slash command"** but *mentions* a slash trigger in its description is the **mirror image** of bootstrap. The self-label should OVERRIDE a mere slash *mention* — distinguish *"used when the user says `/x`"* (its own trigger → workflow) from *"invoked by `/x` as a pre-flight"* (the caller → stays a skill). A slash in a description is only a promotion signal when the sentence frames it as the skill's **own** invocation, not as who calls it.
+
+**Recommended `port.py` guard:** when a skill carries a "not a slash command" / "internal SKILL" self-label AND a slash mention, parse the grammatical role of the slash: promote only if the trigger phrase is *"used/invoked when the user says `/x`"* (first-person trigger); keep as a skill if it's *"invoked by `/x`"* / *"called from `/x`"* / *"pre-flight for `/x`"* (the slash is the agent/caller). When ambiguous, the explicit "not a slash command" self-label wins — flag for finishing-pass review rather than auto-promoting.
+
+### Framework wiring (the richest in the family)
+
+vibe-test carries the **full** self-evolving stack — Levels 2 + 3 plus decay (Pattern #4), wins (Pattern #14), and vitals (Pattern #8). Verified the workflows reference the internal skills by their namespaced names:
+
+- **Router (`/vibe-test`)** invokes `vibe-test-decay` `check_decay()` at first-run-of-the-day (Pattern #4) and `vibe-test-friction-logger` `detect_orphans()` for abandoned-router detection.
+- **`/vibe-test-evolve`** runs `vibe-test-vitals` as a pre-flight (skill-load, internal — NOT a workflow call), then reads `wins.jsonl` (Pattern #14 absence-of-friction inference) + `friction.jsonl` + `sessions/*.jsonl`, weights, and proposes. Self-edit targets are mapped per the port layout (workflows → `.agent/workflows/vibe-test-<cmd>.md`; the router → `.agent/workflows/vibe-test.md`; skills → `.agent/skills/vibe-test-<x>/`; classifier/scoring/generator **code** → the unported CLI `src/`).
+- decay, wins-logger, vitals, friction-logger, session-logger all stay **internal skills**; the AGENTS.md "Self-evolving framework" section documents the wiring as the always-on contract.
+
+**Note (richer-framework):** unlike vibe-walk/iterate (session + friction only), vibe-test adds **decay + wins + vitals**. decay is a router-time read; wins is a Pattern #14 counter-weight read only at evolve-aggregation; vitals is an evolve-pre-flight internal skill. None is a workflow — they are all skill-loaded, which is why the namespacing must rewrite their identities (`vibe-test-decay`, `vibe-test-wins-logger`, `vibe-test-vitals`) without ever minting a slash for them. The wins-logger especially is a *read-mostly* skill (evolve reads `wins.jsonl`; the loggers only append) — its value shows up only at L3 aggregation, so a port that drops it silently loses the absence-of-friction signal evolve depends on. Keep all five.
+
+### The guide split
+
+vibe-test's always-on content lives in the guide **SKILL.md body** (like vibe-sec — no `references/*.md` for persona/posture, so the skeleton came up all-TODO). Folded into AGENTS.md prose: persona (6 registers), posture (the 4 catalog-wide invariants + the **F2 honest-coverage stance**), mode + experience-level adaptation, the **tier-classification stance**, the Pattern #13 composition posture, handoff/version/prereq rules, hard rules, voice. Kept skill-side (situational): the **full classification matrix** (6 app types × 5 tiers × modifiers tables), data contracts, JSON schemas, the carried `templates/` dir, the anchored `plays-well-with.md` registry, the friction-trigger map, and the session-memory interface index. Rewrote `vibe-test-guide/SKILL.md` to a thin index pointing at AGENTS.md (a "where the always-on rules live" table) + the kept files.
+
+### builder.json — confirmed load-bearing (12 repoints)
+
+vibe-test **reads** `~/.gemini/profiles/builder.json` across every workflow (`shared.preferences.persona`, `shared.technical_experience.level`, `plugins.vibe-test.testing_experience`) + vitals (check #3 schema-validates it) + evolve. It writes only `_meta` decay stamps to its own `plugins.vibe-test` namespace. port.py did 12 builder-profile repoints; the finishing pass caught one miss inside `schemas/builder-profile.schema.json`'s description (still `~/.claude`) and fixed it.
+
+### CLI-vs-slash (the vibe-doc watch-item)
+
+**Clean — no collision.** vibe-test's body refs are TypeScript import surfaces (`src/composition/anchored-registry.ts`, `dist/handoff/index.js`), not `npx vibe-test <subcmd>` CLI calls — so there was no two-token `npx <plugin> <cmd>` form for the namespacer to hyphen-mangle. Confirmed zero `npx vibe-test-<sub>`. The only `vibe-test:` two-token hits are the literal HTML-comment **markers** the TESTING.md writer injects (`<!-- vibe-test:start/end:X -->`) — data tokens, correctly left alone. Added an AGENTS.md hard rule pinning the distinction (CLI binary `vibe-test <sub>` with a space vs slash workflow `/vibe-test-<cmd>` with a hyphen) so a future pass doesn't conflate them.
+
+### Open-question findings (do NOT invent primitives)
+
+1. **Scheduled refresh / cron:** **None.** No `schedule`-plugin dependency, no cron.
+2. **`--silent` sidecar calls:** **None.** Composition is **state-file-mediated** (like sec) — `/vibe-test-evolve` reads the jsonl logs; vitals is an internal pre-flight skill **invocation** (skill-load within evolve's turn), not a silent sub-*workflow* call returning structured data. Portable as-is; the open-question #2 (a)/(b) distinction lands on (b).
+3. **Workflow name collisions:** **RESOLVED — namespacing.** Router `/vibe-test` (bare) + 7 `/vibe-test-<cmd>`. The cross-named pair collapsed to the bare router correctly (no `/vibe-test-router`, no `/vibe-test-vibe-test`).
+4. **`plugin_version` discovery:** `.agent/agent.json` holds `0.2.3` (mirrors `plugin.json`; `package.json` is 0.2.4 — the npm CLI version, intentionally ahead). Read by the session/friction loggers for the audit field.
+5. **Claude-only hooks:** **None.** No `hooks/` dir, no `hooks` key. **builder-profile: YES, load-bearing** (see above).
+
+### Mechanical (port.py got it right)
+
+- The **7 clean command+skill merges** (`description` from command, body from skill, standalone skills dropped) — step-2b, zero hand-fix. The merged descriptions are the commands' clean one-liners (not the verbose skill blurbs); the bodies are the skill implementations (H1s match source skill H1s).
+- Namespacing: 144 `plugin-namespaced-slash` repoints (`/vibe-test:audit` → `/vibe-test-audit` etc., 10 in posture alone); 19 `data-path`; 12 `builder-profile`; 4 `claude-home-generic`; 3 `plugin-json`; 2 `sidecar-bare`; 5 `command-start-end`. `agent.json` minted from `plugin.json`.
+
+### Needed thought (the 20%)
+
+- **The two classification errors** (above) — the headline calls, both new edges (cross-named-pair merge, slash-mention false-positive).
+- **The guide split from a SKILL body** (above), and re-modeling **vitals' self-test** for the `.agent/` layout (8 workflows + 6 skills, not the source's `skills/**`).
+- **Per-file guide-intro rewrites** for all 6 merged workflows — the generic auto-rewritten intro listed "persona, experience, Pattern #13, version resolution" (all now in AGENTS.md); rewrote each to the per-file form naming the schema-validation hook each workflow actually leans on (audit → classification matrix + audit-state schema; generate → generate-state schema; gate → locked weighted-score contract; posture → which state files to read).
+- **Folded-reference back-pointers:** 7 `[guide > "Persona Adaptation"]` + 4 `[guide > "Handoff Language Rules"]` links redirected to `AGENTS.md §`; the single `[guide > "Classification Matrix"]` link kept guide-side (it stayed). All `../vibe-test-guide/` workflow→skill paths rewritten to root-absolute `.agent/skills/vibe-test-guide/` (workflows can't use `../` — it resolves to `.agent/workflows/guide/`).
+- **evolve self-edit target map** retargeted for the layout flip (vitals went skill, router merged into `/vibe-test`) + the CLI-code carve-out (classifier/scoring → unported `src/`).
+- **Reference-doc prose cleanup:** the carried `data-contracts.md` / `plays-well-with.md` / `friction-triggers.md` had source-layout `skills/<x>/SKILL.md` consumer paths (port.py namespaced the loggers but left the workflow targets in source form) and "command SKILL" prose — repointed each to its port target and converted to "workflow."
+
+### PORT-RUNNER.md gaps hit this port
+
+1. **Step 2b doesn't cover the cross-named command+skill pair.** PORT-RUNNER step 2b describes the merge as "command + **same-named** skill." The eponymous-command-plus-`router`-skill case is the same entry point under two names — the merge rule must key on the skill's declared slash trigger, not the name. **Recommend:** extend step 2b's table with a row — "command + a differently-named skill whose description declares the **same** slash trigger (e.g. command `vibe-test` + skill `router`, both = `/vibe-test`) → merge into one workflow; target is the bare router `<plugin>.md` if the trigger is `/<plugin>`. port.py's same-name merge misses this; verify by scanning unmatched skills for a slash-trigger that equals a command's slash."
+2. **Step 3 needs the bootstrap-mirror case.** PORT-RUNNER step 3 names the bootstrap edge (internal self-label + own slash trigger → promote to workflow) but not its mirror (internal self-label + a slash *mention that is the caller* → stays a skill). vitals is the mirror. **Recommend:** add to step 3 — "Mirror of bootstrap: a skill self-labeled 'Internal — not a slash command' that *mentions* a slash which is its **caller** (`invoked by /x` / `pre-flight for /x`), not its own trigger (`used when the user says /x`), STAYS a skill. The 'not a slash command' self-label OVERRIDES a mere slash mention. Parse the grammatical role of the slash before promoting."
+3. **Step 7 (self-test re-model) and the templates carry recur.** vibe-walk already flagged the vitals self-test re-model and the scripts-carry gap; vibe-test hit the **templates** variant — port.py carried `schemas/` + `references/` verbatim but **missed the guide's `templates/` dir** (6 `.template` files the audit/handoff workflows produce output from and vitals check #2 validates). **Recommend:** generalize the vibe-walk script-carry note to "carry ALL sibling data dirs under the guide skill (`schemas/`, `references/`, `templates/`, `fixtures/`) — port.py's verbatim-carry may miss dirs beyond schemas/references; diff the source guide skill's subdirs against the skeleton's."
+
+Otherwise PORT-RUNNER.md carried the rest cleanly — the 7 mechanical merges (step 2b), the guide split, the per-file intros, the namespacing verification, the leftover-grep, and the open-questions re-check all mapped to existing steps. The seven-of-nine merges being mechanical (only the two cross/mirror edges needed hands) is more proof the step-2b fix generalizes — the residue is exactly the two cases the name-keyed merge and the trigger-keyed classifier structurally can't see.

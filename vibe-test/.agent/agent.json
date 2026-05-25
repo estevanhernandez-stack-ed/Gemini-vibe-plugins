@@ -1,0 +1,17 @@
+{
+  "name": "vibe-test",
+  "version": "0.2.3",
+  "description": "Test analyzer and generator for vibe-coded apps. Classifies your app by type and maturity tier, audits existing coverage honestly (no cherry-picked denominators), and generates the tests that actually matter proportional to deployment risk.",
+  "author": "626Labs LLC",
+  "license": "",
+  "source_plugin": {
+    "marketplace": "vibe-plugins",
+    "name": "vibe-test",
+    "version": "0.2.3",
+    "format": "claude-code"
+  },
+  "port": {
+    "target": "antigravity-2.0",
+    "notes": "Manifest mirrors the Claude Code plugin.json version. Read by vibe-test-session-logger/vibe-test-friction-logger for the plugin_version audit field. Antigravity discovers workflows from .agent/workflows/ and skills from .agent/skills/ — this file is a port-bookkeeping manifest, not a discovery requirement."
+  }
+}
