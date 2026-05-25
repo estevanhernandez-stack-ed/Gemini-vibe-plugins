@@ -1,0 +1,17 @@
+{
+  "name": "vibe-doc",
+  "version": "0.8.0",
+  "description": "AI-powered documentation gap analyzer. Scans your codebase, classifies your project, identifies missing technical documentation, and generates professional docs from your existing artifacts.",
+  "author": "626Labs LLC",
+  "license": "MIT",
+  "source_plugin": {
+    "marketplace": "vibe-plugins",
+    "name": "vibe-doc",
+    "version": "0.8.0",
+    "format": "claude-code"
+  },
+  "port": {
+    "target": "antigravity-2.0",
+    "notes": "Manifest mirrors the Claude Code plugin.json version. Read by vibe-doc-session-logger/vibe-doc-friction-logger for the plugin_version audit field. Antigravity discovers workflows from .agent/workflows/ and skills from .agent/skills/ — this file is a port-bookkeeping manifest, not a discovery requirement."
+  }
+}

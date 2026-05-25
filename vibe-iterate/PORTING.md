@@ -279,3 +279,77 @@ Keystone has no `guide` skill, no session-logger, no friction-logger, no scripts
 4. **Path note (not a content gap):** the task brief and step 10 say append to `tools/PORTING.md`, but the canonical cookbook is `vibe-iterate/PORTING.md` (where vibe-walk's entry lives, and what PORT-RUNNER.md's header points to as the authority). There is no `tools/PORTING.md`. Appended here to keep one cookbook. **Recommend:** PORT-RUNNER step 10 should name the cookbook path explicitly (`vibe-iterate/PORTING.md`) to avoid the ambiguity.
 
 Otherwise PORT-RUNNER.md carried the rest cleanly — the edge-confirmation discipline, the evolve self-edit-target retargeting, the namespacing verification, and the open-questions re-check all mapped to existing steps. The guide-split steps (1, 2, 4, 5) and the script-carry / self-test gaps from vibe-walk simply didn't apply (no guide, no scripts, no vitals).
+
+## vibe-doc@0.8.0 (ported 2026-05-24)
+
+**Shape:** the **first port with a `commands/` dir.** Source = 5 commands (`scan`, `generate`, `check`, `evolve-doc`, `status`) + 7 skills (`scan`, `generate`, `check`, `evolve-doc`, `friction-logger`, `guide`, `session-logger`) → **5 workflows + 3 skills** + AGENTS.md + agent.json. This port surfaced a new mapping pattern AND a `port.py` gap, and it's the **first port to actually USE the `builder.json` repoint**.
+
+### The headline new lesson: thin-command-wrapper → merged workflow
+
+vibe-doc's `commands/*.md` are **thin slash-entry wrappers** that delegate to a parallel skill. `commands/scan.md` is four lines — `description: Scan your project for documentation gaps` + "read `${CLAUDE_PLUGIN_ROOT}/skills/scan/SKILL.md` and follow it." The COMMAND is the slash identity + clean one-line summary; the SKILL holds the real implementation (and its own "use when the user mentions 'scan'…" semantic trigger).
+
+**`port.py` processed only `skills/` and IGNORED `commands/`** — so it (a) emitted scan/generate/check as **skills** (wrong — they're user-typed slash entries; their skill descriptions read as semantic-load phrasing, which the classifier mapped to `skill`), and (b) **dropped the commands entirely**, so `status` (command-only, no parallel skill) **vanished**.
+
+**The correct mapping — merge each command with its parallel skill into ONE workflow:**
+
+| Source | Source kind | Port target | Why |
+|---|---|---|---|
+| `scan` (cmd + skill) | thin wrapper + impl skill | **workflow** `/vibe-doc-scan` | command → slash + `description`; skill body → workflow body. Standalone skill dropped. |
+| `generate` (cmd + skill) | thin wrapper + impl skill | **workflow** `/vibe-doc-generate` | same merge. |
+| `check` (cmd + skill) | thin wrapper + impl skill | **workflow** `/vibe-doc-check` | same merge. The command's extra framing ("suggest running `/generate` if stale") folded into the workflow body. |
+| `evolve-doc` (cmd + skill) | thin wrapper + impl skill | **workflow** `/vibe-doc-evolve` | already a workflow in the skeleton; reconciled the command's clean `description`, verified the implementation carried, retargeted self-edit targets. |
+| `status` (command-ONLY) | thin command, no skill | **workflow** `/vibe-doc-status` | body = the command's `npx vibe-doc status` logic. **Rebuilt from `commands/status.md`** — port.py had dropped it. |
+| `guide` | shared-behavior skill | **split** → `AGENTS.md` + **skill** `vibe-doc-guide` | see guide split. |
+| `session-logger`, `friction-logger` | internal skills | **skills** `vibe-doc-{session,friction}-logger` | loaded, never typed. |
+
+**Count: 5 workflows + 3 skills + AGENTS.md.** Deleted the mis-emitted standalone `vibe-doc-scan`/`-generate`/`-check` skill dirs after merging their bodies into the workflows.
+
+**Lesson (new, headline):** when a plugin has BOTH `commands/` and `skills/`, the command is the user-facing surface — the merged result is **always a workflow**, regardless of how the skill's own `description` reads. The merge uses the command's clean one-line `description` as the workflow summary and the skill's body as the implementation. Discard the skill's verbose "this skill should be used when…" blurb. A command-only command (no parallel skill) is still a workflow — its body IS the implementation.
+
+### The `port.py` `commands/` enhancement (the big fix)
+
+Taught `port.py` the pattern so sec/test (likely the same shape) port mechanically:
+
+- **`collect_commands(src)`** reads `commands/*.md` when the dir exists.
+- **`merge_commands_and_skills(skills, commands, plugin)`** reconciles: command + same-named skill → mark the skill a **workflow** (`merged_from_command`), command's `description` wins, skill body stays as the workflow body, standalone skill dropped; command-only → synthesize a **workflow** from the command body (`command_only`); skill-only → classify as usual. Runs **before** the namespacing map is computed, so the merged/command-only workflows get `/<plugin>-<cmd>` names automatically.
+- Report gained a **`commands_merged`** block (`commands_found`, `merged_with_skill`, `command_only_workflows`) + a finishing-pass TODO.
+- **Defensive carry:** a *merged* skill that ALSO had `references/`/`schemas/` would lose them in the single-file workflow branch — so the script carries them into a companion `.agent/skills/<name>/` dir and flags it. No plugin hit this (scan/generate/check have no sub-dirs), but sec/test might.
+- Re-running the enhanced script on vibe-doc now emits **5 workflows + 3 skills** mechanically (verified). Documented as **PORT-RUNNER.md step 2b**.
+
+### builder.json — first port to USE it
+
+vibe-doc is the **first port where the `~/.claude/profiles/builder.json` → `~/.gemini/profiles/builder.json` repoint is load-bearing** (vibe-iterate/walk had no global profile; keystone names tenant paths but doesn't auto-read it). `/vibe-doc-scan` and `/vibe-doc-generate` **write** `plugins.vibe-doc.*` (read-merge-write, only if the file exists); the guide + `/vibe-doc-evolve` **read** it. port.py did 16 repoints. The finishing pass folded the read-merge-write ownership rules (shared = read-only, plugin-scoped = vibe-doc-owned, never-create, always-merge) into AGENTS.md as an always-on rule, and left the detailed plugin-scoped field list there too — it's a hard contract every workflow that touches the profile must honor.
+
+### CLAUDE.md-as-content (keystone's lesson, applied again)
+
+vibe-doc *reads and generates documentation* — and `CLAUDE.md`/`AGENTS.md` are themselves doc artifacts it handles. Same output-vs-context split as keystone: where `CLAUDE.md` meant **this project's rules file** (a source it reads for context in the generate hint table / ADR+readme source lists, or the confidence-attribution example), repointed to **`AGENTS.md`** (port.py did 8 claude-md repoints). Where it's a **classification signal for a HOST app** — the `skill-command-reference` generator scanning `commands/*.md` + `skills/*/SKILL.md`, the classification-taxonomy listing `.claude-plugin/marketplace.json` as a multi-plugin-repo signal — **kept as content** (vibe-doc documents whatever shape the target app has). Added an explicit AGENTS.md section spelling out the distinction so a future "kill all CLAUDE.md" pass doesn't break the meta-explanation.
+
+### Mechanical (port.py got it right — after the enhancement)
+
+- The command/skill merge into 5 workflows + 3 skills (post-fix). Frontmatter swap on evolve; path repoints (13 data-path, 16 builder-profile, 8 claude-md, 5 plugin-json); `/vibe-doc:evolve-doc` → `/vibe-doc-evolve` (4 namespaced-slash); "command start/end" → "workflow start/end" (9); agent.json minted from plugin.json (version 0.8.0).
+
+### Needed thought (the 20%)
+
+- **The command merge** (above) — the headline judgment call AND the port.py fix.
+- **status, the command-only case** — rebuilt the workflow body from `commands/status.md` (port.py had dropped it pre-fix). It's a thin reporting surface over `npx vibe-doc status`; documented in the workflow that there is no parallel skill to merge — the workflow IS the implementation.
+- **The guide split.** vibe-doc's always-on layer is tone/persona-adaptability/posture + the **unified-profile read-merge-write rules** + the **Pattern #13 composition posture** + hard rules → folded into AGENTS.md prose. The situational detail kept skill-side: the project-state schema, CLI patterns, output-format standards, the persona **table**, the complement **table** + live-discovery heuristics, and the classification-taxonomy / documentation-matrix / breadcrumb-heuristics / friction-triggers references + JSON schemas. Rewrote `vibe-doc-guide/SKILL.md` from a ~320-line full guide to a thin index pointing at AGENTS.md + the kept files. (port.py's verbatim copy left stale `~/.claude` and `CLAUDE.md` strings inside the schema/reference files — hand-fixed: 2 schema-description data-paths, 1 schema `/evolve-doc` ref, the friction-triggers section headings `/scan` → `/vibe-doc-scan`, and a fistful of "command SKILL" prose → "workflow".)
+- **evolve-doc self-edit targets.** Added a target-mapping block: command-behavior edits → `.agent/workflows/vibe-doc-{scan,generate,check,status}.md` (the merge flipped scan/generate/check from skills to workflows); shared behavior → the guide skill / AGENTS.md; **classifier/scoring/state-schema/matrix code → the CLI source repo** (`src/classifier/*.ts`, `src/state/schema.ts`), which is NOT ported into `.agent/` (deterministic CLI code) — so those proposals ship on the next CLI publish, not as `.agent/` edits. Classic skill→workflow target flip plus a port-doesn't-carry-CLI-source nuance.
+- **CLI-binary mis-repoint caught.** port.py's namespacing rewrote the **CLI binary name** `npx vibe-doc check` → `npx vibe-doc-check` in one spot (the check skill's exit-code table). The CLI binary is `vibe-doc`, not `vibe-doc-check` — fixed by hand. (The slash command is `/vibe-doc-check`; the CLI subcommand stays `vibe-doc check`. A word-boundary edge the namespacer should ideally exclude `npx vibe-doc <sub>` from — noted as a PORT-RUNNER watch-item.)
+
+### Open-question findings (do NOT invent primitives)
+
+1. **Scheduled refresh / cron:** **None.** The only `schedule`/`cron` hits are classification-taxonomy content (how to detect data-pipeline host apps) and a "scheduled check (weekly reminder)" doc *example*. No `schedule`-plugin dependency.
+2. **`--silent` sidecar calls:** **None.** The "silent" hits are all the loggers' defensive-default "exit silently" semantics — not sub-workflow calls returning structured data. No sidecar pattern.
+3. **Workflow name collisions:** **RESOLVED — namespacing.** 5 distinct `/vibe-doc-*` names; no eponymous router case here (the plugin's main verb is `scan`, not `vibe-doc`, so there's no bare `/vibe-doc` router — every workflow is `/vibe-doc-<cmd>`).
+4. **`plugin_version` discovery:** `.agent/agent.json` holds `0.8.0`, read by both loggers for the audit field. Same bookkeeping status as the siblings.
+5. **Claude-only hooks:** **None.** No `hooks/` dir, no `hooks` key in plugin.json. **builder-profile: YES, load-bearing** (first port to use it — see above).
+
+### PORT-RUNNER.md gaps hit this port
+
+1. **No guidance for the `commands/` dir at all** — the big one. PORT-RUNNER had no step for "a plugin with both commands/ and skills/." **Fixed:** added **step 2b (the command merge)** with the merge table, the why-this-was-wrong note, and the verify checklist; updated step 0's sanity-check math (`workflows + skills` = skills + command-only-commands, since pairs merge); taught `port.py` to do it automatically.
+2. **CLI-binary vs slash-command namespacing collision.** The namespacer rewrote `npx vibe-doc check` → `npx vibe-doc-check`. **Recommend:** a PORT-RUNNER watch-item under step 6.5 / step 7 — "the namespacer rewrites slash names AND can catch a CLI subcommand that shares the command word (`npx <plugin> <cmd>`); verify CLI invocations kept the `<plugin> <subcommand>` two-token form." (Low frequency; one hit this port.)
+3. **port.py's verbatim copy leaves stale strings inside schemas/reference files.** The guide's `schemas/*.json` and `references/*.md` carried `~/.claude/...` and `CLAUDE.md` / `.claude-plugin/plugin.json` in description strings and prose. port.py transforms `references/*.md` prose but **`schemas/*.json` are copied byte-for-byte** (correct for data, but the human-readable `description` fields inside them still need repointing). **Recommend:** step 9's leftover-grep already catches these — just call out that schema `description` strings are a known straggler source for any logger-bearing plugin.
+
+4. **Helper scripts ARE load-bearing here (the vibe-walk gap, hit again).** The loggers call `node scripts/atomic-append-jsonl.js` (atomic session/friction appends) and the evolve profile-write calls `node scripts/atomic-write-json.js` — both ship in the source plugin's `scripts/` dir. **port.py did NOT carry them** (its `files_copied_verbatim` listed only the guide schemas — same gap vibe-walk flagged). Without them the loggers can't do atomic writes. **Hand-fix:** carried `atomic-append-jsonl.js` + `atomic-write-json.js` → `.agent/scripts/` (dropped `copy-templates.js`/`postinstall.js` — those are npm-install/CLI artifacts, not workflow helpers), repointed every body ref `scripts/atomic-*.js` → `.agent/scripts/atomic-*.js` (root-absolute, as node invocations run from the workspace root, not relative to the skill dir), and documented the script location in AGENTS.md. **Recommend (reinforces vibe-walk's gap #1):** `port.py` should detect a top-level `scripts/` dir, carry the workflow-referenced helpers into `.agent/scripts/`, and repoint `scripts/...` body refs. This is now the second port to need it — promote it from "improvise" to a real step.
+
+Otherwise PORT-RUNNER.md carried the rest cleanly — the guide split, edge-confirmation, evolve self-edit retargeting, the namespacing verification, and the open-questions re-check all mapped to existing steps. No vitals self-test to re-model.

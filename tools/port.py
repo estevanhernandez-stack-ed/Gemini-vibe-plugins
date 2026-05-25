@@ -120,14 +120,29 @@ def parse_frontmatter(text: str) -> tuple[dict, str]:
 @dataclass
 class SkillInfo:
     name: str            # dir name (the slash name / skill name)
-    src_dir: Path
-    skill_md: Path
+    src_dir: Path | None
+    skill_md: Path | None
     frontmatter: dict
     body: str
     classification: str  # "workflow" | "skill"
     reason: str
     edge_flag: bool = False   # classification disagreed with the self-label
     has_extra_files: bool = False  # references/ schemas/ fixtures/ scripts/
+    # Command-merge bookkeeping (see merge_commands_and_skills):
+    #   merged_from_command — a parallel commands/<name>.md supplied the slash
+    #     identity + description; THIS skill body is the implementation. The
+    #     standalone skill is dropped; the pair ports to ONE workflow.
+    #   command_only — no parallel skill; the workflow body IS the command body.
+    merged_from_command: bool = False
+    command_only: bool = False
+
+
+@dataclass
+class CommandInfo:
+    name: str            # file basename without .md (the slash name)
+    src_md: Path
+    frontmatter: dict
+    body: str
 
 
 def classify(name: str, fm: dict, plugin_name: str) -> tuple[str, str, bool]:
@@ -234,6 +249,15 @@ def build_repoints(plugin_name: str) -> list[Repoint]:
             "claude-md",
             re.compile(r"\bCLAUDE\.md\b"),
             "AGENTS.md",
+        ),
+        # Plugin-root helper-script invocations: `node scripts/<x>.js` ->
+        # `node .agent/scripts/<x>.js`. Scoped to the `node scripts/` invocation
+        # form so it never touches host-app prose like "any `scripts/` folder"
+        # (a classifier signal) or a skill-internal `scripts/` reference.
+        Repoint(
+            "script-invocation",
+            re.compile(r"\bnode scripts/"),
+            "node .agent/scripts/",
         ),
         # --- invocation repoints ---
         # /<plugin>:cmd -> /cmd  (also handles backtick `/plugin:cmd`)
@@ -532,6 +556,7 @@ class PortReport:
     files_copied_verbatim: list[str] = field(default_factory=list)
     finishing_pass_todos: list[str] = field(default_factory=list)
     namespacing: dict = field(default_factory=dict)
+    commands_merged: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -546,6 +571,7 @@ class PortReport:
                 "files_copied_verbatim": len(self.files_copied_verbatim),
                 "guide_intro_lines_to_synthesize": self.guide_ref_hits,
             },
+            "commands_merged": self.commands_merged,
             "namespacing": self.namespacing,
             "workflows": self.workflows,
             "skills": self.skills,
@@ -629,6 +655,100 @@ def collect_skills(src: Path, plugin_name: str) -> list[SkillInfo]:
             has_extra_files=extra,
         ))
     return out
+
+
+def collect_commands(src: Path) -> list[CommandInfo]:
+    """Read commands/*.md if the source has a commands/ dir.
+
+    Claude Code plugins can carry BOTH commands/ and skills/. A command is the
+    user-typed slash entry; it is often a THIN wrapper that delegates to a
+    parallel skill ("read skills/<name>/SKILL.md and follow it"). The merge step
+    pairs each command with its same-named skill so the pair ports to ONE
+    workflow. See merge_commands_and_skills + PORT-RUNNER.md step 2b.
+    """
+    cmd_dir = src / "commands"
+    out: list[CommandInfo] = []
+    if not cmd_dir.is_dir():
+        return out
+    for f in sorted(p for p in cmd_dir.iterdir()
+                    if p.is_file() and p.suffix.lower() == ".md"):
+        text = f.read_text(encoding="utf-8")
+        fm, body = parse_frontmatter(text)
+        out.append(CommandInfo(name=f.stem, src_md=f, frontmatter=fm, body=body))
+    return out
+
+
+def merge_commands_and_skills(
+    skills: list[SkillInfo], commands: list[CommandInfo], plugin_name: str
+) -> list[SkillInfo]:
+    """Reconcile commands/ against skills/ into the unified workflow/skill list.
+
+    The mapping (PORT-RUNNER.md step 2b — the thin-command-wrapper pattern):
+
+      - command + same-named skill  -> MERGE into ONE workflow. The command
+        supplies the slash identity + the clean `description`; the SKILL body is
+        the implementation. The standalone skill is dropped (its body lives in
+        the workflow now). This is the case port.py used to get WRONG: it only
+        read skills/, saw "this skill should be used when…" phrasing, and emitted
+        scan/generate/check as SKILLS — dropping the commands and the slash
+        identity entirely.
+      - command-only (no parallel skill) -> a workflow whose body IS the command
+        body. (port.py used to drop these — e.g. vibe-doc's `status` vanished.)
+      - skill-only (no parallel command) -> classify as usual (workflow if it
+        carries a real trigger, else skill). Internal skills + the guide stay.
+
+    Returns the adjusted skills list (the single source the emit loop iterates).
+    """
+    if not commands:
+        return skills
+
+    skill_by_name = {s.name: s for s in skills}
+    cmd_by_name = {c.name: c for c in commands}
+    merged: list[SkillInfo] = []
+    seen_skills: set[str] = set()
+
+    # 1. Each command: merge with its skill, or stand alone as a workflow.
+    for c in commands:
+        cmd_desc = (c.frontmatter.get("description") or "").strip()
+        sk = skill_by_name.get(c.name)
+        if sk is not None:
+            # MERGE: command slash+description, skill body = implementation.
+            seen_skills.add(sk.name)
+            sk.classification = "workflow"
+            sk.edge_flag = False
+            sk.merged_from_command = True
+            sk.reason = (
+                f"command + parallel skill merged into one workflow "
+                f"(/{c.name}); description from the command, body from the skill"
+            )
+            # The command's clean description wins as the workflow summary.
+            if cmd_desc:
+                sk.frontmatter = dict(sk.frontmatter)
+                sk.frontmatter["description"] = cmd_desc
+            merged.append(sk)
+        else:
+            # COMMAND-ONLY: synthesize a workflow from the command body.
+            fm = dict(c.frontmatter)
+            if cmd_desc:
+                fm["description"] = cmd_desc
+            merged.append(SkillInfo(
+                name=c.name, src_dir=None, skill_md=c.src_md,
+                frontmatter=fm, body=c.body,
+                classification="workflow",
+                reason=f"command-only (no parallel skill) — workflow from "
+                       f"commands/{c.name}.md",
+                edge_flag=False, has_extra_files=False,
+                command_only=True,
+            ))
+
+    # 2. Skills with no parallel command: keep as classified.
+    for s in skills:
+        if s.name in seen_skills:
+            continue
+        merged.append(s)
+
+    # Preserve a stable order: workflows first by source order, then skills.
+    return merged
 
 
 def copytree_verbatim(src: Path, dst: Path, report: PortReport, out_root: Path,
@@ -816,9 +936,19 @@ def run_port(src: Path, out: Path, plugin_name: str | None,
     report = PortReport(plugin_name=plugin_name, source=str(src), output=str(out))
 
     skills = collect_skills(src, plugin_name)
-    if not skills:
-        print(f"ERROR: no skills/ with SKILL.md found under {src}", file=sys.stderr)
+    commands = collect_commands(src)
+    if not skills and not commands:
+        print(f"ERROR: no skills/ or commands/ with .md found under {src}",
+              file=sys.stderr)
         sys.exit(2)
+
+    # Reconcile commands/ against skills/ (the thin-command-wrapper pattern).
+    # A command + same-named skill merges into ONE workflow; a command-only entry
+    # becomes a workflow; skills with no command classify as usual.
+    n_merged = sum(1 for c in commands
+                   if any(s.name == c.name for s in skills))
+    n_cmd_only = len(commands) - n_merged
+    skills = merge_commands_and_skills(skills, commands, plugin_name)
 
     # First pass: settle classifications + the guide split target.
     guide = next((s for s in skills if s.name == "guide"), None)
@@ -838,12 +968,56 @@ def run_port(src: Path, out: Path, plugin_name: str | None,
         "workflow_renames": {f"/{o}": f"/{n}" for o, n in cmd_map.items()},
         "skill_renames": dict(skill_map),
     }
+    if commands:
+        report.commands_merged = {
+            "commands_found": [c.name for c in commands],
+            "merged_with_skill": [s.name for s in skills
+                                  if s.merged_from_command],
+            "command_only_workflows": [s.name for s in skills
+                                       if s.command_only],
+            "note": "Each command + same-named skill merged into ONE workflow "
+                    "(command -> slash + description, skill body -> workflow "
+                    "body, standalone skill dropped). Command-only commands "
+                    "became workflows from the command body. See PORT-RUNNER.md "
+                    "step 2b.",
+        }
 
     # Output skeleton dirs
     wf_dir = out / ".agent" / "workflows"
     sk_dir = out / ".agent" / "skills"
     wf_dir.mkdir(parents=True, exist_ok=True)
     sk_dir.mkdir(parents=True, exist_ok=True)
+
+    # Top-level scripts/ carry. A plugin can ship helper scripts at its ROOT
+    # (vibe-walk: discovery/build helpers; vibe-doc: the atomic-write helpers the
+    # loggers shell out to). These are NOT the skill-internal scripts/ dirs that
+    # copytree_verbatim handles — they're plugin-root and workflow-referenced.
+    # Carry the format-agnostic helpers into .agent/scripts/, skip npm/install
+    # artifacts (postinstall, copy-templates), and flag for a body-ref repoint.
+    src_scripts = src / "scripts"
+    if src_scripts.is_dir():
+        dst_scripts = out / ".agent" / "scripts"
+        dst_scripts.mkdir(parents=True, exist_ok=True)
+        SKIP_SCRIPTS = {"postinstall.js", "copy-templates.js"}
+        carried = []
+        for f in sorted(src_scripts.iterdir()):
+            if not f.is_file() or f.name in SKIP_SCRIPTS:
+                continue
+            if f.name in ("__pycache__",) or f.suffix in (".pyc",):
+                continue
+            shutil.copy2(f, dst_scripts / f.name)
+            carried.append(f.name)
+            report.files_copied_verbatim.append(
+                f".agent/scripts/{f.name} (verbatim)")
+        if carried:
+            report.finishing_pass_todos.append(
+                f"Scripts carried: {carried} → .agent/scripts/ (plugin-root "
+                "helpers the workflows/skills shell out to). VERIFY: repoint "
+                "every body ref `scripts/<x>` → `.agent/scripts/<x>` (node "
+                "invocations run from the workspace root, so root-absolute, not "
+                "relative to the skill dir). Skipped npm/install artifacts "
+                "(postinstall.js, copy-templates.js)."
+            )
 
     repoints = build_repoints(plugin_name)
 
@@ -865,12 +1039,33 @@ def run_port(src: Path, out: Path, plugin_name: str | None,
             report.files_transformed.append(
                 str(dest.relative_to(out))
             )
+            # Defensive: a command-merged source skill that ALSO carried
+            # references/schemas/fixtures/scripts would lose them in the workflow
+            # branch (workflows are single files). Carry them into a companion
+            # skill dir and flag for the finishing pass. (No current plugin hits
+            # this — scan/generate/check have no sub-dirs — but sec/test might.)
+            if s.merged_from_command and s.has_extra_files and s.src_dir:
+                companion = sk_dir / new_name
+                companion.mkdir(parents=True, exist_ok=True)
+                copytree_verbatim(s.src_dir, companion, report, out,
+                                  repoints, workflow_names, skill_names,
+                                  plugin_name, cmd_map, skill_map)
+                report.finishing_pass_todos.append(
+                    f"Merged workflow '{new_name}' carried sub-dirs "
+                    f"(references/schemas/...) from its source skill into a "
+                    f"companion skill dir '.agent/skills/{new_name}/'. Decide: "
+                    "fold the reference detail into the guide skill, keep the "
+                    "companion, or inline into the workflow. Don't ship a dangling "
+                    "companion with no SKILL.md."
+                )
             report.workflows.append({
                 "name": new_name,
                 "slash": f"/{new_name}",
                 "source_name": s.name,
                 "reason": s.reason,
                 "edge_flag": s.edge_flag,
+                "merged_from_command": s.merged_from_command,
+                "command_only": s.command_only,
             })
         else:
             new_name = skill_map[s.name]
@@ -942,6 +1137,20 @@ def run_port(src: Path, out: Path, plugin_name: str | None,
         "common noun 'guide') reads correctly — the ref-rewrite only namespaces "
         "the skill IDENTITY (backtick/'X skill'/path/method-call), not prose.",
     ]
+    if report.commands_merged:
+        cm = report.commands_merged
+        todos.append(
+            "Command merge (thin-command-wrapper pattern): commands/ was "
+            f"detected. Merged with a parallel skill -> workflow: "
+            f"{cm.get('merged_with_skill') or '[]'}. Command-only -> workflow: "
+            f"{cm.get('command_only_workflows') or '[]'}. VERIFY each merged "
+            "workflow's `description` (from the command) reads clean and its "
+            "body (from the skill) carries the full implementation; confirm the "
+            "standalone skill dirs for the merged ones were dropped (port.py "
+            "emits no skill for them). For command-only workflows, the body is "
+            "the command body — flesh out any 'read the SKILL' delegation that "
+            "no longer has a skill to point at."
+        )
     if report.guide_ref_hits:
         todos.append(
             f"Guide-intro lines: {report.guide_ref_hits} workflow/skill bodies "

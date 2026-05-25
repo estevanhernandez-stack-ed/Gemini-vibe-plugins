@@ -24,7 +24,10 @@ Read the stdout summary and `<output-dir>/port-report.json`. The report's
 `finishing_pass_todos` array is your checklist — this doc explains each item.
 
 Sanity-check the report first:
-- `summary.workflows` + `summary.skills` should equal the source skill count.
+- `summary.workflows` + `summary.skills` should equal the source **surface** count
+  — i.e. (skills + command-only commands), since each command+skill pair MERGES into
+  one workflow (it doesn't double-count). If the source has a `commands/` dir, read
+  `report.commands_merged` to see the merge math (see step 2b).
 - `edge_classifications` — every entry needs a human eye (see step 3).
 - `leftover_grep_hits` — most are expected (see step 6); confirm none are misses.
 
@@ -59,6 +62,51 @@ section.
   (step 2).
 
 ---
+
+## 2b. The command merge (thin-command-wrapper → merged workflow)
+
+> **Applies only to plugins with a `commands/` dir** (vibe-doc was the first;
+> sec/test are likely the same shape). `port.py` now handles this automatically —
+> this step is the human verification.
+
+Claude Code conflates two surfaces a plugin can expose: **commands** (`commands/*.md`,
+the user-typed slash entry) and **skills** (`skills/*/SKILL.md`, semantic-loaded
+behavior). A common pattern is the **thin command wrapper**: `commands/scan.md` is
+four lines — `description: Scan your project…` + "read `skills/scan/SKILL.md` and
+follow it." The command is the slash identity + clean one-line summary; the skill
+holds the real implementation (and its own "use when the user mentions 'scan'…"
+semantic trigger).
+
+`port.py` reconciles `commands/` against `skills/` into the unified workflow/skill list:
+
+| Source shape | Port target | Rule |
+|---|---|---|
+| command + same-named skill | **one workflow** `/<plugin>-<cmd>` | MERGE: command → slash + `description`; skill body → workflow body. The standalone skill is **dropped** (its body lives in the workflow now). |
+| command-only (no parallel skill) | **workflow** `/<plugin>-<cmd>` | Body IS the command body. |
+| skill-only (no parallel command) | classify as usual | Workflow if it carries a real trigger; else skill (loggers, guide). |
+
+**Why this was the big lesson:** before the fix, `port.py` read only `skills/`. It saw
+the skill descriptions ("This skill should be used when…" = semantic-load phrasing),
+emitted scan/generate/check as **skills** (wrong — they're user-typed entries), and
+**dropped the commands entirely** — so `status` (command-only, no parallel skill)
+vanished. The merge restores the slash identity AND recovers the command-only case.
+
+**Verify in the finishing pass:**
+- The report's `commands_merged` block lists `merged_with_skill` + `command_only_workflows`.
+  Confirm each merged workflow's `description` (from the command) reads clean and its
+  **body carries the full implementation** (from the skill) — not just the command's
+  "read the SKILL" delegation line.
+- Confirm **no standalone skill dir survives** for a merged command (port.py emits none;
+  if you re-ran an older skeleton, `rm` the `vibe-doc-scan`/`-generate`/`-check` skill dirs).
+- For a **command-only** workflow, flesh out any "read `skills/X/SKILL.md`" delegation
+  that no longer has a skill to point at — the workflow IS the implementation now.
+- Edge note: the merged skill's own `description` (the semantic trigger) is discarded in
+  favor of the command's clean one — don't paste the verbose "this skill should be used
+  when…" blurb back into the workflow `description`.
+- Defensive: if a *merged* source skill ALSO carried `references/`/`schemas/`, port.py
+  carries them into a companion `.agent/skills/<name>/` dir and flags it. Decide: fold
+  into the guide skill, keep the companion (add a SKILL.md), or inline. (No plugin has hit
+  this yet — scan/generate/check have no sub-dirs.)
 
 ## 2. The guide split (the subtle one)
 

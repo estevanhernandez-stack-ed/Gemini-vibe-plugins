@@ -1,0 +1,168 @@
+{
+  "plugin_name": "vibe-doc",
+  "source": "C:\\Users\\estev\\Projects\\vibe-doc\\packages\\vibe-doc",
+  "output": "C:\\Users\\estev\\Projects\\vibe-plugins-ports\\vibe-doc",
+  "summary": {
+    "workflows": 5,
+    "skills": 3,
+    "edge_classifications": 0,
+    "files_transformed": 14,
+    "files_copied_verbatim": 3,
+    "guide_intro_lines_to_synthesize": 0
+  },
+  "commands_merged": {
+    "commands_found": [
+      "check",
+      "evolve-doc",
+      "generate",
+      "scan",
+      "status"
+    ],
+    "merged_with_skill": [
+      "check",
+      "evolve-doc",
+      "generate",
+      "scan"
+    ],
+    "command_only_workflows": [
+      "status"
+    ],
+    "note": "Each command + same-named skill merged into ONE workflow (command -> slash + description, skill body -> workflow body, standalone skill dropped). Command-only commands became workflows from the command body. See PORT-RUNNER.md step 2b."
+  },
+  "namespacing": {
+    "convention": "router=/<plugin>; other workflows=/<plugin>-<cmd>; evolve-*=/<plugin>-evolve; skills=<plugin>-<skill>",
+    "workflow_renames": {
+      "/check": "/vibe-doc-check",
+      "/evolve-doc": "/vibe-doc-evolve",
+      "/generate": "/vibe-doc-generate",
+      "/scan": "/vibe-doc-scan",
+      "/status": "/vibe-doc-status"
+    },
+    "skill_renames": {
+      "friction-logger": "vibe-doc-friction-logger",
+      "guide": "vibe-doc-guide",
+      "session-logger": "vibe-doc-session-logger"
+    }
+  },
+  "workflows": [
+    {
+      "name": "vibe-doc-check",
+      "slash": "/vibe-doc-check",
+      "source_name": "check",
+      "reason": "command + parallel skill merged into one workflow (/check); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-doc-evolve",
+      "slash": "/vibe-doc-evolve",
+      "source_name": "evolve-doc",
+      "reason": "command + parallel skill merged into one workflow (/evolve-doc); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-doc-generate",
+      "slash": "/vibe-doc-generate",
+      "source_name": "generate",
+      "reason": "command + parallel skill merged into one workflow (/generate); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-doc-scan",
+      "slash": "/vibe-doc-scan",
+      "source_name": "scan",
+      "reason": "command + parallel skill merged into one workflow (/scan); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-doc-status",
+      "slash": "/vibe-doc-status",
+      "source_name": "status",
+      "reason": "command-only (no parallel skill) — workflow from commands/status.md",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "vibe-doc-friction-logger",
+      "source_name": "friction-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "vibe-doc-guide",
+      "source_name": "guide",
+      "reason": "shared-behavior reference, never user-invoked",
+      "edge_flag": false,
+      "carried_verbatim": true,
+      "guide_split": true
+    },
+    {
+      "name": "vibe-doc-session-logger",
+      "source_name": "session-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    }
+  ],
+  "edge_classifications": [],
+  "repoints_applied": {
+    "data-path": 13,
+    "builder-profile": 16,
+    "plugin-json": 5,
+    "claude-md": 8,
+    "script-invocation": 5,
+    "plugin-namespaced-slash": 4,
+    "command-start-end": 9
+  },
+  "unknown_xref_targets": [],
+  "leftover_grep_hits": {
+    "claude-home": [
+      "AGENTS.md: …~/.claude…"
+    ]
+  },
+  "files_transformed": [
+    ".agent\\workflows\\vibe-doc-check.md",
+    ".agent\\workflows\\vibe-doc-evolve.md",
+    ".agent\\workflows\\vibe-doc-generate.md",
+    ".agent\\workflows\\vibe-doc-scan.md",
+    ".agent\\workflows\\vibe-doc-status.md",
+    ".agent\\skills\\vibe-doc-friction-logger\\SKILL.md",
+    ".agent\\skills\\vibe-doc-guide\\SKILL.md",
+    ".agent\\skills\\vibe-doc-guide\\references\\breadcrumb-heuristics.md",
+    ".agent\\skills\\vibe-doc-guide\\references\\classification-taxonomy.md",
+    ".agent\\skills\\vibe-doc-guide\\references\\documentation-matrix.md",
+    ".agent\\skills\\vibe-doc-guide\\references\\friction-triggers.md",
+    ".agent\\skills\\vibe-doc-session-logger\\SKILL.md",
+    ".agent/agent.json",
+    "AGENTS.md (skeleton — finishing pass)"
+  ],
+  "files_copied_verbatim": [
+    ".agent/scripts/atomic-append-jsonl.js (verbatim)",
+    ".agent/scripts/atomic-write-json.js (verbatim)",
+    ".agent\\skills\\vibe-doc-guide\\schemas/* (verbatim)"
+  ],
+  "finishing_pass_todos": [
+    "AGENTS.md: synthesize the always-on layer as prose (persona, posture, knowledge sources, cross-plugin detection, hard rules, voice). The skeleton has TODO markers + source-doc hints.",
+    "Guide split: decide which guide reference docs are always-on (collapse into AGENTS.md prose, then DELETE from the guide skill so there's one source of truth) vs situational (keep as files in the guide skill). Rewrite the guide SKILL.md to a thin index. Schemas + trigger maps stay skill-side; personas + postures go AGENTS-side.",
+    "Namespacing applied: every non-router workflow is /<plugin>-<cmd>, evolve-* collapsed to /<plugin>-evolve, skills are <plugin>-<skill> (dir + frontmatter name). See report.namespacing for the rename map. Spot-check that no bare command slash-ref survived (only the router /<plugin> is bare) and that prose using a skill's plain word (e.g. the common noun 'guide') reads correctly — the ref-rewrite only namespaces the skill IDENTITY (backtick/'X skill'/path/method-call), not prose.",
+    "Command merge (thin-command-wrapper pattern): commands/ was detected. Merged with a parallel skill -> workflow: ['check', 'evolve-doc', 'generate', 'scan']. Command-only -> workflow: ['status']. VERIFY each merged workflow's `description` (from the command) reads clean and its body (from the skill) carries the full implementation; confirm the standalone skill dirs for the merged ones were dropped (port.py emits no skill for them). For command-only workflows, the body is the command body — flesh out any 'read the SKILL' delegation that no longer has a skill to point at.",
+    "Self-edit targets in evolve-doc: the proposal shapes name files to edit ('plugins/<plugin>/skills/<cmd>/SKILL.md'). Repoint each to its real port target — '.agent/workflows/<cmd>.md' for ported workflows, '.agent/skills/<name>/...' for ported skills. This is NOT a blind string replace (a skill that became a workflow flips the target dir).",
+    "Folded-reference back-pointers: any body that said 'per ../guide/references/<doc>.md' for a doc that got collapsed into AGENTS.md must point at 'AGENTS.md § <Section>' instead.",
+    "H1 titles / inline triggers: the script repoints frontmatter triggers and body slash names, but H1 headings and HTML-entity forms (e.g. '/plugin:rate &lt;idea&gt;') may need a hand pass for clean '/rate <idea>' form.",
+    "Open questions 1-5 (PORTING.md): re-check against THIS plugin's feature set — does it schedule (cron)? call sidecars silently? have hooks/? use ~/.claude/profiles/builder.json? namespace-collide on workflow names? Document the answers; do NOT invent Antigravity primitives.",
+    "Leftover grep hits remain (see leftover_grep_hits) — review each; some are legitimate (the AGENTS.md repoint note mentions the old path on purpose), some are misses to clean up."
+  ]
+}
