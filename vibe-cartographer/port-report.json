@@ -1,0 +1,311 @@
+{
+  "plugin_name": "vibe-cartographer",
+  "source": "C:\\Users\\estev\\Projects\\vibe-cartographer\\plugins\\vibe-cartographer",
+  "output": "C:\\Users\\estev\\Projects\\vibe-plugins-ports\\vibe-cartographer",
+  "summary": {
+    "workflows": 14,
+    "skills": 4,
+    "edge_classifications": 1,
+    "files_transformed": 26,
+    "files_copied_verbatim": 2,
+    "guide_intro_lines_to_synthesize": 0
+  },
+  "commands_merged": {
+    "commands_found": [
+      "build",
+      "checklist",
+      "coder-voice",
+      "evolve-cart",
+      "friction",
+      "iterate",
+      "onboard",
+      "prd",
+      "reflect",
+      "scope",
+      "spec",
+      "tend",
+      "vitals"
+    ],
+    "merged_with_skill": [
+      "build",
+      "checklist",
+      "coder-voice",
+      "evolve-cart",
+      "iterate",
+      "onboard",
+      "prd",
+      "reflect",
+      "scope",
+      "spec",
+      "tend",
+      "vitals"
+    ],
+    "command_only_workflows": [
+      "friction"
+    ],
+    "note": "Each command + same-named skill merged into ONE workflow (command -> slash + description, skill body -> workflow body, standalone skill dropped). Command-only commands became workflows from the command body. See PORT-RUNNER.md step 2b."
+  },
+  "namespacing": {
+    "convention": "router=/<plugin>; other workflows=/<plugin>-<cmd>; evolve-*=/<plugin>-evolve; skills=<plugin>-<skill>",
+    "workflow_renames": {
+      "/build": "/vibe-cartographer-build",
+      "/checklist": "/vibe-cartographer-checklist",
+      "/coder-voice": "/vibe-cartographer-coder-voice",
+      "/evolve-cart": "/vibe-cartographer-evolve",
+      "/friction": "/vibe-cartographer-friction",
+      "/friction-log": "/vibe-cartographer-friction-log",
+      "/iterate": "/vibe-cartographer-iterate",
+      "/onboard": "/vibe-cartographer-onboard",
+      "/prd": "/vibe-cartographer-prd",
+      "/reflect": "/vibe-cartographer-reflect",
+      "/scope": "/vibe-cartographer-scope",
+      "/spec": "/vibe-cartographer-spec",
+      "/tend": "/vibe-cartographer-tend",
+      "/vitals": "/vibe-cartographer-vitals"
+    },
+    "skill_renames": {
+      "decay": "vibe-cartographer-decay",
+      "friction-logger": "vibe-cartographer-friction-logger",
+      "guide": "vibe-cartographer-guide",
+      "session-logger": "vibe-cartographer-session-logger"
+    }
+  },
+  "workflows": [
+    {
+      "name": "vibe-cartographer-build",
+      "slash": "/vibe-cartographer-build",
+      "source_name": "build",
+      "reason": "command + parallel skill merged into one workflow (/build); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-checklist",
+      "slash": "/vibe-cartographer-checklist",
+      "source_name": "checklist",
+      "reason": "command + parallel skill merged into one workflow (/checklist); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-coder-voice",
+      "slash": "/vibe-cartographer-coder-voice",
+      "source_name": "coder-voice",
+      "reason": "command + parallel skill merged into one workflow (/coder-voice); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-evolve",
+      "slash": "/vibe-cartographer-evolve",
+      "source_name": "evolve-cart",
+      "reason": "command + parallel skill merged into one workflow (/evolve-cart); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-friction",
+      "slash": "/vibe-cartographer-friction",
+      "source_name": "friction",
+      "reason": "command-only (no parallel skill) \u2014 workflow from commands/friction.md",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": true
+    },
+    {
+      "name": "vibe-cartographer-iterate",
+      "slash": "/vibe-cartographer-iterate",
+      "source_name": "iterate",
+      "reason": "command + parallel skill merged into one workflow (/iterate); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-onboard",
+      "slash": "/vibe-cartographer-onboard",
+      "source_name": "onboard",
+      "reason": "command + parallel skill merged into one workflow (/onboard); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-prd",
+      "slash": "/vibe-cartographer-prd",
+      "source_name": "prd",
+      "reason": "command + parallel skill merged into one workflow (/prd); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-reflect",
+      "slash": "/vibe-cartographer-reflect",
+      "source_name": "reflect",
+      "reason": "command + parallel skill merged into one workflow (/reflect); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-scope",
+      "slash": "/vibe-cartographer-scope",
+      "source_name": "scope",
+      "reason": "command + parallel skill merged into one workflow (/scope); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-spec",
+      "slash": "/vibe-cartographer-spec",
+      "source_name": "spec",
+      "reason": "command + parallel skill merged into one workflow (/spec); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-tend",
+      "slash": "/vibe-cartographer-tend",
+      "source_name": "tend",
+      "reason": "command + parallel skill merged into one workflow (/tend); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-vitals",
+      "slash": "/vibe-cartographer-vitals",
+      "source_name": "vitals",
+      "reason": "command + parallel skill merged into one workflow (/vitals); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-cartographer-friction-log",
+      "slash": "/vibe-cartographer-friction-log",
+      "source_name": "friction-log",
+      "reason": "user-invocable slash trigger (/friction)",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "vibe-cartographer-decay",
+      "source_name": "decay",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "vibe-cartographer-friction-logger",
+      "source_name": "friction-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "vibe-cartographer-guide",
+      "source_name": "guide",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "edge_flag": true,
+      "carried_verbatim": true,
+      "guide_split": true
+    },
+    {
+      "name": "vibe-cartographer-session-logger",
+      "source_name": "session-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": false
+    }
+  ],
+  "edge_classifications": [
+    {
+      "name": "guide",
+      "classified_as": "skill",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "note": "VERIFY in finishing pass \u2014 self-label vs trigger disagreed, or no strong signal."
+    }
+  ],
+  "repoints_applied": {
+    "data-path": 47,
+    "builder-profile": 55,
+    "claude-home-generic": 33,
+    "plugin-json": 7,
+    "claude-md": 24,
+    "script-invocation": 19,
+    "plugin-namespaced-slash": 22,
+    "command-start-end": 30
+  },
+  "unknown_xref_targets": [],
+  "leftover_grep_hits": {
+    "claude-home": [
+      ".agent\\skills\\vibe-cartographer-decay\\SKILL.md: \u2026~/.claude\u2026",
+      ".agent\\workflows\\vibe-cartographer-coder-voice.md: \u2026~/.claude\u2026",
+      "AGENTS.md: \u2026~/.claude\u2026"
+    ],
+    "namespaced-slash": [
+      ".agent\\workflows\\vibe-cartographer-build.md: \u2026/vibe-test:gate\u2026"
+    ],
+    "claude-md": [
+      ".agent\\workflows\\vibe-cartographer-coder-voice.md: \u2026CLAUDE.md\u2026"
+    ]
+  },
+  "files_transformed": [
+    ".agent\\workflows\\vibe-cartographer-build.md",
+    ".agent\\workflows\\vibe-cartographer-checklist.md",
+    ".agent\\workflows\\vibe-cartographer-coder-voice.md",
+    ".agent\\workflows\\vibe-cartographer-evolve.md",
+    ".agent\\workflows\\vibe-cartographer-friction.md",
+    ".agent\\workflows\\vibe-cartographer-iterate.md",
+    ".agent\\workflows\\vibe-cartographer-onboard.md",
+    ".agent\\workflows\\vibe-cartographer-prd.md",
+    ".agent\\workflows\\vibe-cartographer-reflect.md",
+    ".agent\\workflows\\vibe-cartographer-scope.md",
+    ".agent\\workflows\\vibe-cartographer-spec.md",
+    ".agent\\workflows\\vibe-cartographer-tend.md",
+    ".agent\\workflows\\vibe-cartographer-vitals.md",
+    ".agent\\skills\\vibe-cartographer-decay\\SKILL.md",
+    ".agent\\workflows\\vibe-cartographer-friction-log.md",
+    ".agent\\skills\\vibe-cartographer-friction-logger\\SKILL.md",
+    ".agent\\skills\\vibe-cartographer-guide\\SKILL.md",
+    ".agent\\skills\\vibe-cartographer-guide\\references\\data-contracts.md",
+    ".agent\\skills\\vibe-cartographer-guide\\references\\eval-rubric.md",
+    ".agent\\skills\\vibe-cartographer-guide\\references\\four-modes.md",
+    ".agent\\skills\\vibe-cartographer-guide\\references\\friction-triggers.md",
+    ".agent\\skills\\vibe-cartographer-guide\\references\\prd-guide.md",
+    ".agent\\skills\\vibe-cartographer-guide\\references\\spec-patterns.md",
+    ".agent\\skills\\vibe-cartographer-session-logger\\SKILL.md",
+    ".agent/agent.json",
+    "AGENTS.md (skeleton \u2014 finishing pass)"
+  ],
+  "files_copied_verbatim": [
+    ".agent\\skills\\vibe-cartographer-guide\\schemas/* (verbatim)",
+    ".agent\\skills\\vibe-cartographer-guide\\templates/* (verbatim)"
+  ],
+  "finishing_pass_todos": [
+    "AGENTS.md: synthesize the always-on layer as prose (persona, posture, knowledge sources, cross-plugin detection, hard rules, voice). The skeleton has TODO markers + source-doc hints.",
+    "Guide split: decide which guide reference docs are always-on (collapse into AGENTS.md prose, then DELETE from the guide skill so there's one source of truth) vs situational (keep as files in the guide skill). Rewrite the guide SKILL.md to a thin index. Schemas + trigger maps stay skill-side; personas + postures go AGENTS-side.",
+    "Namespacing applied: every non-router workflow is /<plugin>-<cmd>, evolve-* collapsed to /<plugin>-evolve, skills are <plugin>-<skill> (dir + frontmatter name). See report.namespacing for the rename map. Spot-check that no bare command slash-ref survived (only the router /<plugin> is bare) and that prose using a skill's plain word (e.g. the common noun 'guide') reads correctly \u2014 the ref-rewrite only namespaces the skill IDENTITY (backtick/'X skill'/path/method-call), not prose.",
+    "Command merge (thin-command-wrapper pattern): commands/ was detected. Merged with a parallel skill -> workflow: ['build', 'checklist', 'coder-voice', 'evolve-cart', 'iterate', 'onboard', 'prd', 'reflect', 'scope', 'spec', 'tend', 'vitals']. Command-only -> workflow: ['friction']. VERIFY each merged workflow's `description` (from the command) reads clean and its body (from the skill) carries the full implementation; confirm the standalone skill dirs for the merged ones were dropped (port.py emits no skill for them). For command-only workflows, the body is the command body \u2014 flesh out any 'read the SKILL' delegation that no longer has a skill to point at.",
+    "Edge classification: 'guide' -> skill (no real slash trigger or user-says phrasing \u2014 defaulted to skill). Confirm.",
+    "Self-edit targets in evolve-cart: the proposal shapes name files to edit ('plugins/<plugin>/skills/<cmd>/SKILL.md'). Repoint each to its real port target \u2014 '.agent/workflows/<cmd>.md' for ported workflows, '.agent/skills/<name>/...' for ported skills. This is NOT a blind string replace (a skill that became a workflow flips the target dir).",
+    "Folded-reference back-pointers: any body that said 'per ../guide/references/<doc>.md' for a doc that got collapsed into AGENTS.md must point at 'AGENTS.md \u00a7 <Section>' instead.",
+    "H1 titles / inline triggers: the script repoints frontmatter triggers and body slash names, but H1 headings and HTML-entity forms (e.g. '/plugin:rate &lt;idea&gt;') may need a hand pass for clean '/rate <idea>' form.",
+    "Open questions 1-5 (PORTING.md): re-check against THIS plugin's feature set \u2014 does it schedule (cron)? call sidecars silently? have hooks/? use ~/.claude/profiles/builder.json? namespace-collide on workflow names? Document the answers; do NOT invent Antigravity primitives.",
+    "Leftover grep hits remain (see leftover_grep_hits) \u2014 review each; some are legitimate (the AGENTS.md repoint note mentions the old path on purpose), some are misses to clean up."
+  ]
+}
