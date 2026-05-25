@@ -1,0 +1,18 @@
+{
+  "_comment": "vibe-wrap SessionEnd nudge — Antigravity/Gemini hook config. Merge this 'hooks' block into your workspace .gemini/settings.json (or user settings.json). On session close it runs session-end-nudge.py, which emits ONE line suggesting /vibe-wrap when the session left a trail (breadcrumbs, uncommitted files, or commits ahead of remote). Non-blocking; never invokes /vibe-wrap. The command path is relative to the workspace root where .agent/ was installed — adjust if your hooks run from a different cwd.",
+  "hooks": {
+    "SessionEnd": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "name": "vibe-wrap-session-end-nudge",
+            "command": "python3 .agent/hooks/session-end-nudge.py",
+            "description": "Emit a one-line /vibe-wrap nudge when the closing session left an uncommitted/unpushed trail."
+          }
+        ]
+      }
+    ]
+  }
+}

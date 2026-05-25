@@ -1,0 +1,142 @@
+{
+  "plugin_name": "vibe-wrap",
+  "source": "C:\\Users\\estev\\Projects\\vibe-wrap\\plugins\\vibe-wrap",
+  "output": "C:\\Users\\estev\\Projects\\vibe-plugins-ports\\vibe-wrap",
+  "summary": {
+    "workflows": 3,
+    "skills": 4,
+    "edge_classifications": 0,
+    "files_transformed": 12,
+    "files_copied_verbatim": 3,
+    "guide_intro_lines_to_synthesize": 13
+  },
+  "commands_merged": {},
+  "namespacing": {
+    "convention": "router=/<plugin>; other workflows=/<plugin>-<cmd>; evolve-*=/<plugin>-evolve; skills=<plugin>-<skill>",
+    "workflow_renames": {
+      "/evolve-wrap": "/vibe-wrap-evolve",
+      "/status": "/vibe-wrap-status",
+      "/wrap": "/vibe-wrap-wrap"
+    },
+    "skill_renames": {
+      "friction-logger": "vibe-wrap-friction-logger",
+      "guide": "vibe-wrap-guide",
+      "plant": "vibe-wrap-plant",
+      "session-logger": "vibe-wrap-session-logger"
+    }
+  },
+  "workflows": [
+    {
+      "name": "vibe-wrap-evolve",
+      "slash": "/vibe-wrap-evolve",
+      "source_name": "evolve-wrap",
+      "reason": "user-invocable slash trigger (/vibe-wrap:evolve-wrap)",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": false
+    },
+    {
+      "name": "vibe-wrap-status",
+      "slash": "/vibe-wrap-status",
+      "source_name": "status",
+      "reason": "user-invocable slash trigger (/vibe-wrap:status)",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": false
+    },
+    {
+      "name": "vibe-wrap-wrap",
+      "slash": "/vibe-wrap-wrap",
+      "source_name": "wrap",
+      "reason": "user-invocable slash trigger (/vibe-wrap)",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "vibe-wrap-friction-logger",
+      "source_name": "friction-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": true,
+      "guide_split": false
+    },
+    {
+      "name": "vibe-wrap-guide",
+      "source_name": "guide",
+      "reason": "shared-behavior reference, never user-invoked",
+      "edge_flag": false,
+      "carried_verbatim": true,
+      "guide_split": true
+    },
+    {
+      "name": "vibe-wrap-plant",
+      "source_name": "plant",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": true,
+      "guide_split": false
+    },
+    {
+      "name": "vibe-wrap-session-logger",
+      "source_name": "session-logger",
+      "reason": "self-labeled internal, no real slash trigger",
+      "edge_flag": false,
+      "carried_verbatim": true,
+      "guide_split": false
+    }
+  ],
+  "edge_classifications": [],
+  "repoints_applied": {
+    "data-path": 32,
+    "builder-profile": 10,
+    "claude-home-generic": 8,
+    "plugin-root-generic": 2,
+    "plugin-json": 4,
+    "claude-md": 3,
+    "plugin-namespaced-slash": 20,
+    "sidecar-backtick": 21,
+    "command-start-end": 16
+  },
+  "unknown_xref_targets": [],
+  "leftover_grep_hits": {
+    "guide-ref": [
+      ".agent\\skills\\vibe-wrap-friction-logger\\SKILL.md: \u2026../guide\u2026"
+    ],
+    "claude-home": [
+      "AGENTS.md: \u2026~/.claude\u2026"
+    ]
+  },
+  "files_transformed": [
+    ".agent\\workflows\\vibe-wrap-evolve.md",
+    ".agent\\skills\\vibe-wrap-friction-logger\\SKILL.md",
+    ".agent\\skills\\vibe-wrap-guide\\SKILL.md",
+    ".agent\\skills\\vibe-wrap-guide\\references\\friction-triggers.md",
+    ".agent\\skills\\vibe-wrap-guide\\references\\persona-adaptation.md",
+    ".agent\\skills\\vibe-wrap-guide\\references\\voice.md",
+    ".agent\\skills\\vibe-wrap-plant\\SKILL.md",
+    ".agent\\skills\\vibe-wrap-session-logger\\SKILL.md",
+    ".agent\\workflows\\vibe-wrap-status.md",
+    ".agent\\workflows\\vibe-wrap-wrap.md",
+    ".agent/agent.json",
+    "AGENTS.md (skeleton \u2014 finishing pass)"
+  ],
+  "files_copied_verbatim": [
+    ".agent\\skills\\vibe-wrap-friction-logger\\scripts/* (verbatim)",
+    ".agent\\skills\\vibe-wrap-plant\\scripts/* (verbatim)",
+    ".agent\\skills\\vibe-wrap-session-logger\\scripts/* (verbatim)"
+  ],
+  "finishing_pass_todos": [
+    "AGENTS.md: synthesize the always-on layer as prose (persona, posture, knowledge sources, cross-plugin detection, hard rules, voice). The skeleton has TODO markers + source-doc hints.",
+    "Guide split: decide which guide reference docs are always-on (collapse into AGENTS.md prose, then DELETE from the guide skill so there's one source of truth) vs situational (keep as files in the guide skill). Rewrite the guide SKILL.md to a thin index. Schemas + trigger maps stay skill-side; personas + postures go AGENTS-side.",
+    "Namespacing applied: every non-router workflow is /<plugin>-<cmd>, evolve-* collapsed to /<plugin>-evolve, skills are <plugin>-<skill> (dir + frontmatter name). See report.namespacing for the rename map. Spot-check that no bare command slash-ref survived (only the router /<plugin> is bare) and that prose using a skill's plain word (e.g. the common noun 'guide') reads correctly \u2014 the ref-rewrite only namespaces the skill IDENTITY (backtick/'X skill'/path/method-call), not prose.",
+    "Guide-intro lines: 13 workflow/skill bodies had a '[../guide/SKILL.md]' intro line auto-rewritten to a generic pointer. Rewrite each to the per-file prose form (e.g. 'Persona/posture/Cart-detection are always-on via AGENTS.md\u2026').",
+    "Self-edit targets in evolve-wrap: the proposal shapes name files to edit ('plugins/<plugin>/skills/<cmd>/SKILL.md'). Repoint each to its real port target \u2014 '.agent/workflows/<cmd>.md' for ported workflows, '.agent/skills/<name>/...' for ported skills. This is NOT a blind string replace (a skill that became a workflow flips the target dir).",
+    "Folded-reference back-pointers: any body that said 'per ../guide/references/<doc>.md' for a doc that got collapsed into AGENTS.md must point at 'AGENTS.md \u00a7 <Section>' instead.",
+    "H1 titles / inline triggers: the script repoints frontmatter triggers and body slash names, but H1 headings and HTML-entity forms (e.g. '/plugin:rate &lt;idea&gt;') may need a hand pass for clean '/rate <idea>' form.",
+    "Open questions 1-5 (PORTING.md): re-check against THIS plugin's feature set \u2014 does it schedule (cron)? call sidecars silently? have hooks/? use ~/.claude/profiles/builder.json? namespace-collide on workflow names? Document the answers; do NOT invent Antigravity primitives.",
+    "Leftover grep hits remain (see leftover_grep_hits) \u2014 review each; some are legitimate (the AGENTS.md repoint note mentions the old path on purpose), some are misses to clean up."
+  ]
+}

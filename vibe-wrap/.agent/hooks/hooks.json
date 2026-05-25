@@ -1,0 +1,16 @@
+{
+  "_provenance": "Claude Code original hooks.json (carried verbatim for provenance; ${CLAUDE_PLUGIN_ROOT} repointed to the relative .agent/ path). The ACTIVE Antigravity wiring is settings.json in this directory — merge that 'hooks' block into .gemini/settings.json. Claude Code's plugin-hooks discovery (hooks/hooks.json) and Antigravity/Gemini's settings.json hooks share the same SessionEnd event + stdin contract; the difference is the config home (a discovered hooks.json vs a settings.json hooks block).",
+  "description": "vibe-wrap SessionEnd nudge — emits one line suggesting /vibe-wrap when the session left a trail (breadcrumbs, uncommitted files, or commits ahead of remote). Non-blocking; never invokes /vibe-wrap.",
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .agent/hooks/session-end-nudge.py"
+          }
+        ]
+      }
+    ]
+  }
+}

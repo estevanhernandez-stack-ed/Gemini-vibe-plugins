@@ -1,0 +1,20 @@
+{
+  "name": "vibe-wrap",
+  "version": "0.2.1",
+  "description": "Session wrap-up that reads the breadcrumb trail your toolkit already left — not a cold reconstruction. Multi-repo aware: surfaces what shipped across every repo the session touched, what's uncommitted, and what's unpushed, then gates commit + push on the current repo only (read wide, mutate narrow).",
+  "author": "626Labs LLC",
+  "license": "MIT",
+  "source_plugin": {
+    "marketplace": "vibe-plugins",
+    "name": "vibe-wrap",
+    "version": "0.2.1",
+    "format": "claude-code"
+  },
+  "port": {
+    "target": "antigravity-2.0",
+    "notes": "Manifest mirrors the Claude Code plugin.json version. Read by vibe-wrap-session-logger/vibe-wrap-friction-logger for the plugin_version audit field (path: .agent/agent.json). Antigravity discovers workflows from .agent/workflows/ and skills from .agent/skills/ — this file is a port-bookkeeping manifest, not a discovery requirement.",
+    "hooks": "First hook-bearing port. Ships a SessionEnd nudge hook — Antigravity 2.0 supports the SessionEnd lifecycle event via the Gemini-CLI-derived JSON hook system (settings.json hooks block, command-type entry, stdin JSON payload with session_id/cwd/reason). Active wiring: .agent/hooks/settings.json (merge its hooks block into .gemini/settings.json). Script: .agent/hooks/session-end-nudge.py. Claude Code original .agent/hooks/hooks.json kept for provenance. The nudge is non-critical — /vibe-wrap works fully without it.",
+    "scripts": "Deterministic core carried to .agent/scripts/ (render-wrap, multi-repo/git-state, readers, status, atomic-append, decision-log/ package, assets/, references/). Logger + plant helpers stay under .agent/skills/vibe-wrap-<skill>/scripts/.",
+    "eponymous_router": "The source `wrap` skill IS the main /vibe-wrap command — ported to the bare router .agent/workflows/vibe-wrap.md (not /vibe-wrap-wrap)."
+  }
+}
