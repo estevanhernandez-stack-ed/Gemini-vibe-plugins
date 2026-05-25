@@ -1,0 +1,17 @@
+{
+  "name": "vibe-iterate",
+  "version": "1.1.0",
+  "description": "Post-ship product iteration for Google Antigravity — pick a mode (feature-add, competitive, ux-polish, bug-bash) or reach for a sidecar (radar, spy, scan-releases, rate, ship, upgrade). One PR per session, regression-aware, small-diff-preferred. First-run bootstrap identifies the app type and interviews you for competitors + framework pins. Composes with vibe-cartographer when present. Self-evolves via session + friction logging. No telemetry.",
+  "author": "626Labs LLC",
+  "license": "MIT",
+  "source_plugin": {
+    "marketplace": "vibe-plugins",
+    "name": "vibe-iterate",
+    "version": "1.1.0",
+    "format": "claude-code"
+  },
+  "port": {
+    "target": "antigravity-2.0",
+    "notes": "Manifest mirrors the Claude Code plugin.json version. Read by session-logger/friction-logger for the plugin_version audit field. Antigravity discovers workflows from .agent/workflows/ and skills from .agent/skills/ — this file is a port-bookkeeping manifest, not a discovery requirement."
+  }
+}
