@@ -1,0 +1,199 @@
+{
+  "plugin_name": "vibe-thesis",
+  "source": "C:\\Users\\estev\\Projects\\vibe-thesis\\plugins\\vibe-thesis",
+  "output": "C:\\Users\\estev\\Projects\\vibe-plugins-ports\\vibe-thesis",
+  "summary": {
+    "workflows": 8,
+    "skills": 2,
+    "edge_classifications": 2,
+    "files_transformed": 12,
+    "files_copied_verbatim": 0,
+    "guide_intro_lines_to_synthesize": 0
+  },
+  "commands_merged": {
+    "commands_found": [
+      "guard",
+      "smooth",
+      "vibe-render",
+      "vibe-status",
+      "voice"
+    ],
+    "merged_with_skill": [
+      "vibe-render",
+      "vibe-status"
+    ],
+    "command_only_workflows": [
+      "guard",
+      "smooth",
+      "voice"
+    ],
+    "note": "Each command + same-named skill merged into ONE workflow (command -> slash + description, skill body -> workflow body, standalone skill dropped). Command-only commands became workflows from the command body. See PORT-RUNNER.md step 2b."
+  },
+  "namespacing": {
+    "convention": "router=/<plugin>; other workflows=/<plugin>-<cmd>; evolve-*=/<plugin>-evolve; skills=<plugin>-<skill>",
+    "workflow_renames": {
+      "/guard": "/vibe-thesis-guard",
+      "/smooth": "/vibe-thesis-smooth",
+      "/synthesis-smooth": "/vibe-thesis-synthesis-smooth",
+      "/vibe-render": "/vibe-thesis-vibe-render",
+      "/vibe-status": "/vibe-thesis-vibe-status",
+      "/vibe-thesis": "/vibe-thesis",
+      "/voice": "/vibe-thesis-voice",
+      "/voice-synthesis": "/vibe-thesis-voice-synthesis"
+    },
+    "skill_renames": {
+      "audit": "vibe-thesis-audit",
+      "synthesis-guard": "vibe-thesis-synthesis-guard"
+    }
+  },
+  "workflows": [
+    {
+      "name": "vibe-thesis-guard",
+      "slash": "/vibe-thesis-guard",
+      "source_name": "guard",
+      "reason": "command-only (no parallel skill) \u2014 workflow from commands/guard.md",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": true
+    },
+    {
+      "name": "vibe-thesis-smooth",
+      "slash": "/vibe-thesis-smooth",
+      "source_name": "smooth",
+      "reason": "command-only (no parallel skill) \u2014 workflow from commands/smooth.md",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": true
+    },
+    {
+      "name": "vibe-thesis-vibe-render",
+      "slash": "/vibe-thesis-vibe-render",
+      "source_name": "vibe-render",
+      "reason": "command + parallel skill merged into one workflow (/vibe-render); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-thesis-vibe-status",
+      "slash": "/vibe-thesis-vibe-status",
+      "source_name": "vibe-status",
+      "reason": "command + parallel skill merged into one workflow (/vibe-status); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-thesis-voice",
+      "slash": "/vibe-thesis-voice",
+      "source_name": "voice",
+      "reason": "command-only (no parallel skill) \u2014 workflow from commands/voice.md",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": true
+    },
+    {
+      "name": "vibe-thesis-synthesis-smooth",
+      "slash": "/vibe-thesis-synthesis-smooth",
+      "source_name": "synthesis-smooth",
+      "reason": "user-invocable slash trigger (/vibe-thesis:voice)",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": false
+    },
+    {
+      "name": "vibe-thesis",
+      "slash": "/vibe-thesis",
+      "source_name": "vibe-thesis",
+      "reason": "user-invocable slash trigger (/bootstrap)",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": false
+    },
+    {
+      "name": "vibe-thesis-voice-synthesis",
+      "slash": "/vibe-thesis-voice-synthesis",
+      "source_name": "voice-synthesis",
+      "reason": "user-invocable slash trigger (/vibe-thesis:smooth)",
+      "edge_flag": false,
+      "merged_from_command": false,
+      "command_only": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "vibe-thesis-audit",
+      "source_name": "audit",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "edge_flag": true,
+      "carried_verbatim": false,
+      "guide_split": false
+    },
+    {
+      "name": "vibe-thesis-synthesis-guard",
+      "source_name": "synthesis-guard",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "edge_flag": true,
+      "carried_verbatim": false,
+      "guide_split": false
+    }
+  ],
+  "edge_classifications": [
+    {
+      "name": "audit",
+      "classified_as": "skill",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "note": "VERIFY in finishing pass \u2014 self-label vs trigger disagreed, or no strong signal."
+    },
+    {
+      "name": "synthesis-guard",
+      "classified_as": "skill",
+      "reason": "no real slash trigger or user-says phrasing \u2014 defaulted to skill",
+      "note": "VERIFY in finishing pass \u2014 self-label vs trigger disagreed, or no strong signal."
+    }
+  ],
+  "repoints_applied": {
+    "claude-home-generic": 2,
+    "claude-md": 25,
+    "plugin-namespaced-slash": 55
+  },
+  "unknown_xref_targets": [],
+  "leftover_grep_hits": {
+    "claude-md": [
+      ".agent\\workflows\\vibe-thesis-synthesis-smooth.md: \u2026CLAUDE.md\u2026",
+      ".agent\\workflows\\vibe-thesis-voice-synthesis.md: \u2026CLAUDE.md\u2026",
+      ".agent\\workflows\\vibe-thesis-voice.md: \u2026CLAUDE.md\u2026",
+      ".agent\\workflows\\vibe-thesis.md: \u2026CLAUDE.md\u2026"
+    ],
+    "claude-home": [
+      "AGENTS.md: \u2026~/.claude\u2026"
+    ]
+  },
+  "files_transformed": [
+    ".agent\\workflows\\vibe-thesis-guard.md",
+    ".agent\\workflows\\vibe-thesis-smooth.md",
+    ".agent\\workflows\\vibe-thesis-vibe-render.md",
+    ".agent\\workflows\\vibe-thesis-vibe-status.md",
+    ".agent\\workflows\\vibe-thesis-voice.md",
+    ".agent\\skills\\vibe-thesis-audit\\SKILL.md",
+    ".agent\\skills\\vibe-thesis-synthesis-guard\\SKILL.md",
+    ".agent\\workflows\\vibe-thesis-synthesis-smooth.md",
+    ".agent\\workflows\\vibe-thesis.md",
+    ".agent\\workflows\\vibe-thesis-voice-synthesis.md",
+    ".agent/agent.json",
+    "AGENTS.md (skeleton \u2014 finishing pass)"
+  ],
+  "files_copied_verbatim": [],
+  "finishing_pass_todos": [
+    "AGENTS.md: synthesize the always-on layer as prose (persona, posture, knowledge sources, cross-plugin detection, hard rules, voice). The skeleton has TODO markers + source-doc hints.",
+    "Guide split: decide which guide reference docs are always-on (collapse into AGENTS.md prose, then DELETE from the guide skill so there's one source of truth) vs situational (keep as files in the guide skill). Rewrite the guide SKILL.md to a thin index. Schemas + trigger maps stay skill-side; personas + postures go AGENTS-side.",
+    "Namespacing applied: every non-router workflow is /<plugin>-<cmd>, evolve-* collapsed to /<plugin>-evolve, skills are <plugin>-<skill> (dir + frontmatter name). See report.namespacing for the rename map. Spot-check that no bare command slash-ref survived (only the router /<plugin> is bare) and that prose using a skill's plain word (e.g. the common noun 'guide') reads correctly \u2014 the ref-rewrite only namespaces the skill IDENTITY (backtick/'X skill'/path/method-call), not prose.",
+    "Command merge (thin-command-wrapper pattern): commands/ was detected. Merged with a parallel skill -> workflow: ['vibe-render', 'vibe-status']. Command-only -> workflow: ['guard', 'smooth', 'voice']. VERIFY each merged workflow's `description` (from the command) reads clean and its body (from the skill) carries the full implementation; confirm the standalone skill dirs for the merged ones were dropped (port.py emits no skill for them). For command-only workflows, the body is the command body \u2014 flesh out any 'read the SKILL' delegation that no longer has a skill to point at.",
+    "Edge classification: 'audit' -> skill (no real slash trigger or user-says phrasing \u2014 defaulted to skill). Confirm.",
+    "Edge classification: 'synthesis-guard' -> skill (no real slash trigger or user-says phrasing \u2014 defaulted to skill). Confirm.",
+    "Folded-reference back-pointers: any body that said 'per ../guide/references/<doc>.md' for a doc that got collapsed into AGENTS.md must point at 'AGENTS.md \u00a7 <Section>' instead.",
+    "H1 titles / inline triggers: the script repoints frontmatter triggers and body slash names, but H1 headings and HTML-entity forms (e.g. '/plugin:rate &lt;idea&gt;') may need a hand pass for clean '/rate <idea>' form.",
+    "Open questions 1-5 (PORTING.md): re-check against THIS plugin's feature set \u2014 does it schedule (cron)? call sidecars silently? have hooks/? use ~/.claude/profiles/builder.json? namespace-collide on workflow names? Document the answers; do NOT invent Antigravity primitives.",
+    "Leftover grep hits remain (see leftover_grep_hits) \u2014 review each; some are legitimate (the AGENTS.md repoint note mentions the old path on purpose), some are misses to clean up."
+  ]
+}

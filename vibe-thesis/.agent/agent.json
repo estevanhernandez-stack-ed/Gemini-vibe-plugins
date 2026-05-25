@@ -1,0 +1,17 @@
+{
+  "name": "vibe-thesis",
+  "version": "0.2.0",
+  "description": "Vibe Thesis — scaffold and co-author thesis-shaped artifacts (PDF, HTML, lay-version) with Claude Code. Install, say 'scaffold a vibe thesis project,' get a styled PDF skeleton plus a working render pipeline in roughly 30 minutes. Voice pipeline (voice → smooth → guard) layers on top.",
+  "author": "626Labs LLC",
+  "license": "",
+  "source_plugin": {
+    "marketplace": "vibe-plugins",
+    "name": "vibe-thesis",
+    "version": "0.2.0",
+    "format": "claude-code"
+  },
+  "port": {
+    "target": "antigravity-2.0",
+    "notes": "Manifest mirrors the Claude Code plugin.json version (0.2.0). vibe-thesis has no session/friction loggers, so nothing reads this version field at runtime — pure port-bookkeeping, kept for family consistency. Antigravity discovers workflows from .agent/workflows/; this plugin has no .agent/skills/ (no internal skills). Bundled scaffold assets ship under .agent/templates/ and .agent/examples/."
+  }
+}
