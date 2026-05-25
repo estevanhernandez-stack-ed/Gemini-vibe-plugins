@@ -1,0 +1,187 @@
+{
+  "plugin_name": "vibe-sec",
+  "source": "C:\\Users\\estev\\Projects\\vibe-sec\\packages\\vibe-sec",
+  "output": "C:\\Users\\estev\\Projects\\vibe-plugins-ports\\vibe-sec",
+  "summary": {
+    "workflows": 9,
+    "skills": 1,
+    "edge_classifications": 0,
+    "files_transformed": 12,
+    "files_copied_verbatim": 0,
+    "guide_intro_lines_to_synthesize": 0
+  },
+  "commands_merged": {
+    "commands_found": [
+      "audit",
+      "deps",
+      "fix",
+      "gate",
+      "posture",
+      "research",
+      "scan",
+      "threat-model",
+      "vibe-sec"
+    ],
+    "merged_with_skill": [
+      "audit",
+      "deps",
+      "fix",
+      "gate",
+      "posture",
+      "research",
+      "scan",
+      "threat-model",
+      "vibe-sec"
+    ],
+    "command_only_workflows": [],
+    "note": "Each command + same-named skill merged into ONE workflow (command -> slash + description, skill body -> workflow body, standalone skill dropped). Command-only commands became workflows from the command body. See PORT-RUNNER.md step 2b."
+  },
+  "namespacing": {
+    "convention": "router=/<plugin>; other workflows=/<plugin>-<cmd>; evolve-*=/<plugin>-evolve; skills=<plugin>-<skill>",
+    "workflow_renames": {
+      "/audit": "/vibe-sec-audit",
+      "/deps": "/vibe-sec-deps",
+      "/fix": "/vibe-sec-fix",
+      "/gate": "/vibe-sec-gate",
+      "/posture": "/vibe-sec-posture",
+      "/research": "/vibe-sec-research",
+      "/scan": "/vibe-sec-scan",
+      "/threat-model": "/vibe-sec-threat-model",
+      "/vibe-sec": "/vibe-sec"
+    },
+    "skill_renames": {
+      "guide": "vibe-sec-guide"
+    }
+  },
+  "workflows": [
+    {
+      "name": "vibe-sec-audit",
+      "slash": "/vibe-sec-audit",
+      "source_name": "audit",
+      "reason": "command + parallel skill merged into one workflow (/audit); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-sec-deps",
+      "slash": "/vibe-sec-deps",
+      "source_name": "deps",
+      "reason": "command + parallel skill merged into one workflow (/deps); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-sec-fix",
+      "slash": "/vibe-sec-fix",
+      "source_name": "fix",
+      "reason": "command + parallel skill merged into one workflow (/fix); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-sec-gate",
+      "slash": "/vibe-sec-gate",
+      "source_name": "gate",
+      "reason": "command + parallel skill merged into one workflow (/gate); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-sec-posture",
+      "slash": "/vibe-sec-posture",
+      "source_name": "posture",
+      "reason": "command + parallel skill merged into one workflow (/posture); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-sec-research",
+      "slash": "/vibe-sec-research",
+      "source_name": "research",
+      "reason": "command + parallel skill merged into one workflow (/research); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-sec-scan",
+      "slash": "/vibe-sec-scan",
+      "source_name": "scan",
+      "reason": "command + parallel skill merged into one workflow (/scan); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-sec-threat-model",
+      "slash": "/vibe-sec-threat-model",
+      "source_name": "threat-model",
+      "reason": "command + parallel skill merged into one workflow (/threat-model); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    },
+    {
+      "name": "vibe-sec",
+      "slash": "/vibe-sec",
+      "source_name": "vibe-sec",
+      "reason": "command + parallel skill merged into one workflow (/vibe-sec); description from the command, body from the skill",
+      "edge_flag": false,
+      "merged_from_command": true,
+      "command_only": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "vibe-sec-guide",
+      "source_name": "guide",
+      "reason": "shared-behavior reference, never user-invoked",
+      "edge_flag": false,
+      "carried_verbatim": false,
+      "guide_split": true
+    }
+  ],
+  "edge_classifications": [],
+  "repoints_applied": {
+    "data-path": 1,
+    "plugin-root-generic": 10,
+    "plugin-namespaced-slash": 34,
+    "sidecar-backtick": 11
+  },
+  "unknown_xref_targets": [],
+  "leftover_grep_hits": {
+    "claude-home": [
+      "AGENTS.md: \u2026~/.claude\u2026"
+    ]
+  },
+  "files_transformed": [
+    ".agent\\workflows\\vibe-sec-audit.md",
+    ".agent\\workflows\\vibe-sec-deps.md",
+    ".agent\\workflows\\vibe-sec-fix.md",
+    ".agent\\workflows\\vibe-sec-gate.md",
+    ".agent\\workflows\\vibe-sec-posture.md",
+    ".agent\\workflows\\vibe-sec-research.md",
+    ".agent\\workflows\\vibe-sec-scan.md",
+    ".agent\\workflows\\vibe-sec-threat-model.md",
+    ".agent\\workflows\\vibe-sec.md",
+    ".agent\\skills\\vibe-sec-guide\\SKILL.md",
+    ".agent/agent.json",
+    "AGENTS.md (skeleton \u2014 finishing pass)"
+  ],
+  "files_copied_verbatim": [],
+  "finishing_pass_todos": [
+    "AGENTS.md: synthesize the always-on layer as prose (persona, posture, knowledge sources, cross-plugin detection, hard rules, voice). The skeleton has TODO markers + source-doc hints.",
+    "Guide split: decide which guide reference docs are always-on (collapse into AGENTS.md prose, then DELETE from the guide skill so there's one source of truth) vs situational (keep as files in the guide skill). Rewrite the guide SKILL.md to a thin index. Schemas + trigger maps stay skill-side; personas + postures go AGENTS-side.",
+    "Namespacing applied: every non-router workflow is /<plugin>-<cmd>, evolve-* collapsed to /<plugin>-evolve, skills are <plugin>-<skill> (dir + frontmatter name). See report.namespacing for the rename map. Spot-check that no bare command slash-ref survived (only the router /<plugin> is bare) and that prose using a skill's plain word (e.g. the common noun 'guide') reads correctly \u2014 the ref-rewrite only namespaces the skill IDENTITY (backtick/'X skill'/path/method-call), not prose.",
+    "Command merge (thin-command-wrapper pattern): commands/ was detected. Merged with a parallel skill -> workflow: ['audit', 'deps', 'fix', 'gate', 'posture', 'research', 'scan', 'threat-model', 'vibe-sec']. Command-only -> workflow: []. VERIFY each merged workflow's `description` (from the command) reads clean and its body (from the skill) carries the full implementation; confirm the standalone skill dirs for the merged ones were dropped (port.py emits no skill for them). For command-only workflows, the body is the command body \u2014 flesh out any 'read the SKILL' delegation that no longer has a skill to point at.",
+    "Folded-reference back-pointers: any body that said 'per ../guide/references/<doc>.md' for a doc that got collapsed into AGENTS.md must point at 'AGENTS.md \u00a7 <Section>' instead.",
+    "H1 titles / inline triggers: the script repoints frontmatter triggers and body slash names, but H1 headings and HTML-entity forms (e.g. '/plugin:rate &lt;idea&gt;') may need a hand pass for clean '/rate <idea>' form.",
+    "Open questions 1-5 (PORTING.md): re-check against THIS plugin's feature set \u2014 does it schedule (cron)? call sidecars silently? have hooks/? use ~/.claude/profiles/builder.json? namespace-collide on workflow names? Document the answers; do NOT invent Antigravity primitives.",
+    "Leftover grep hits remain (see leftover_grep_hits) \u2014 review each; some are legitimate (the AGENTS.md repoint note mentions the old path on purpose), some are misses to clean up."
+  ]
+}

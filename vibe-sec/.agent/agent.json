@@ -1,0 +1,17 @@
+{
+  "name": "vibe-sec",
+  "version": "0.6.0",
+  "description": "Vibe Sec — the tier-aware security audit and orchestration layer for vibe-coded apps. Defers to gitleaks, OSV-Scanner, and Semgrep when present; falls back to an in-house baseline when absent; and owns the classification, severity calibration, four-band report, fix routing, and threat-model synthesis on top. Nine commands: vibe-sec, scan, audit, deps, fix, gate, posture, threat-model, research.",
+  "author": "626Labs LLC",
+  "license": "MIT",
+  "source_plugin": {
+    "marketplace": "vibe-plugins",
+    "name": "vibe-sec",
+    "version": "0.6.0",
+    "format": "claude-code"
+  },
+  "port": {
+    "target": "antigravity-2.0",
+    "notes": "Manifest mirrors the Claude Code plugin.json version. Read by session-logger/friction-logger for the plugin_version audit field. Antigravity discovers workflows from .agent/workflows/ and skills from .agent/skills/ — this file is a port-bookkeeping manifest, not a discovery requirement."
+  }
+}
